@@ -1,0 +1,4 @@
+1) create nocobase plugin
+2) check prisma table schemas
+3) create collections in nocobase from above tables
+4) create indexex , unique keys and relationships in collection based on prisma schema
