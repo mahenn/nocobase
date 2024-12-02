@@ -20,6 +20,13 @@ export class PluginWhatsappServer extends Plugin {
       directory: path.resolve(__dirname, 'collections'),
     });
 
+    // Register actions for sessions resource
+    this.app.resourcer.define({
+      name: 'sessions',
+      actions: {
+      },
+    });
+
     // Set up permissions
     this.app.acl.allow('chats', '*');
     this.app.acl.allow('contacts', '*');

@@ -8,6 +8,8 @@
  */
 
 import { Plugin } from '@nocobase/client';
+import { tval } from '@nocobase/utils/client';
+import  {PluginWhatsappSession}  from './SessionsManagement';
 
 export class PluginWhatsappClient extends Plugin {
   async afterAdd() {
@@ -18,12 +20,20 @@ export class PluginWhatsappClient extends Plugin {
 
   // You can get and modify the app instance here
   async load() {
-    console.log(this.app);
+   // console.log(this.app);
     // this.app.addComponents({})
     // this.app.addScopes({})
     // this.app.addProvider()
     // this.app.addProviders()
     // this.app.router.add()
+
+     this.app.pluginSettingsManager.add('whatsapp-session', {
+      title: tval('Whatsapp', { ns: 'Whatsapp Sessions' }),
+      icon: 'ClusterOutlined',
+      Component: PluginWhatsappSession,
+    })
+    
+
   }
 }
 
