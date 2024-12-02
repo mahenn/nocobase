@@ -9,6 +9,9 @@
 
 import { Plugin } from '@nocobase/server';
 import path from 'path';
+import { WhatsAppService } from './services/whatsapp';
+import { SessionService } from './services/session';
+import * as sessionActions from './actions/session';
 
 export class PluginWhatsappServer extends Plugin {
   async afterAdd() {}
@@ -20,11 +23,18 @@ export class PluginWhatsappServer extends Plugin {
       directory: path.resolve(__dirname, 'collections'),
     });
 
+    // this.app.registerService('session', SessionService);
+    // this.app.registerService('whatsapp', WhatsAppService);
+
     // Register actions for sessions resource
     this.app.resourcer.define({
       name: 'sessions',
-      actions: {
-      },
+      // actions: {
+      //   // list: sessionActions.list,
+      //   // create: sessionActions.create,
+      //   // destroy: sessionActions.destroy,
+      //   // status: sessionActions.status,
+      // },
     });
 
     // Set up permissions
