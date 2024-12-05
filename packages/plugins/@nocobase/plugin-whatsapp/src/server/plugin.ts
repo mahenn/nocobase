@@ -9,9 +9,8 @@
 
 import { Plugin } from '@nocobase/server';
 import path from 'path';
-import { WhatsAppService } from './services/whatsapp';
-import { SessionService } from './services/session';
-import * as sessionActions from './actions/session';
+import WhatsAppService  from './services/whatsapp';
+
 
 export class PluginWhatsappServer extends Plugin {
   async afterAdd() {}
@@ -26,6 +25,14 @@ export class PluginWhatsappServer extends Plugin {
     // this.app.registerService('session', SessionService);
     // this.app.registerService('whatsapp', WhatsAppService);
 
+
+    this.db.on('sessions.afterCreate', async (session, options) => {
+      const sessionId = session.id;
+      //console.log(sessionId);
+      await WhatsAppService.createSession(sessionId); // Start Baileys session
+    });
+
+
     // Register actions for sessions resource
     this.app.resourcer.define({
       name: 'sessions',
@@ -36,6 +43,10 @@ export class PluginWhatsappServer extends Plugin {
       //   // status: sessionActions.status,
       // },
     });
+
+   // Register WhatsApp service
+   // this.app.service('whatsapp', new WhatsAppService(this.app));
+
 
     // Set up permissions
     this.app.acl.allow('chats', '*');

@@ -15,7 +15,7 @@ export default {
   fields: [
     {
       type: 'bigInt',
-      name: 'pkId',
+      name: 'id',
       primaryKey: true,
       autoIncrement: true,
     },
@@ -27,12 +27,52 @@ export default {
     },
     {
       type: 'string',
-      name: 'id',
-      length: 255,
+      name: 'status',
     },
     {
       type: 'text',
       name: 'data',
+    },
+    { 
+      name: 'qrCode', 
+      type: 'text',  
+    },
+    { 
+      name: 'orgPhone', 
+      type: 'string', 
+    },
+    { 
+      name: 'waState', 
+      type: 'string',  
+    },
+    { 
+      name: 'phoneState', 
+      type: 'bigInt', allowNull: true,
+    },
+    { 
+      name: 'isBrowserOpen', 
+      type: 'boolean', 
+    },
+    {
+      type: 'hasMany',
+      name: 'chats',
+      target: 'chats',
+      foreignKey: 'sessionId',
+      sourceKey: 'sessionId',
+    },
+    {
+      type: 'hasMany',
+      name: 'contacts',
+      target: 'contacts',
+      foreignKey: 'sessionId',
+      sourceKey: 'sessionId',
+    },
+    {
+      type: 'hasMany',
+      name: 'messages',
+      target: 'messages',
+      foreignKey: 'sessionId',
+      sourceKey: 'sessionId',
     },
   ],
   indexes: [

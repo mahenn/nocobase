@@ -122,11 +122,11 @@ export default {
       name: 'terminatedUserJids',
     },
     {
-      type: 'hasOne',
-      name: 'chat',
-      target: 'chats',
-      foreignKey: 'id',
-      sourceKey: 'id',
+      type: 'belongsTo',
+      name: 'session',
+      target: 'sessions',
+      foreignKey: 'sessionId',
+      targetKey: 'sessionId',
     },
   ],
   indexes: [
