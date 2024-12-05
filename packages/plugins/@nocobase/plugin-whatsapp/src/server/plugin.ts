@@ -9,29 +9,39 @@
 
 import { Plugin } from '@nocobase/server';
 import path from 'path';
-import WhatsAppService  from './services/whatsapp';
+import { WhatsAppService } from './services/whatsapp';
+import { SessionService } from './services/session';
 
 
 export class PluginWhatsappServer extends Plugin {
+
+  whatsappService: WhatsAppService;
+  sessionService: SessionService;
+
   async afterAdd() {}
 
   async beforeLoad() {}
 
   async load() {
+  
     await this.db.import({
       directory: path.resolve(__dirname, 'collections'),
     });
 
-    // this.app.registerService('session', SessionService);
-    // this.app.registerService('whatsapp', WhatsAppService);
+  
+    // Initialize SessionService first
+    this.sessionService = new SessionService(this.app);
+    await this.sessionService.initialize();
 
-
+    this.whatsappService = new WhatsAppService(this.app,this.sessionService);
+    await this.whatsappService.initialize();
+    
+    // Update the event listener to use the instance method
     this.db.on('sessions.afterCreate', async (session, options) => {
+      console.log("sessions ",session.id);
       const sessionId = session.id;
-      //console.log(sessionId);
-      await WhatsAppService.createSession(sessionId); // Start Baileys session
+      await this.whatsappService.createSession({sessionId}); // Use instance method
     });
-
 
     // Register actions for sessions resource
     this.app.resourcer.define({
@@ -44,8 +54,9 @@ export class PluginWhatsappServer extends Plugin {
       // },
     });
 
-   // Register WhatsApp service
-   // this.app.service('whatsapp', new WhatsAppService(this.app));
+   // Register services in the plugin manager
+    // this.app.pm.add('session', this.sessionService);
+    // this.app.pm.add('whatsapp', this.whatsappService);
 
 
     // Set up permissions

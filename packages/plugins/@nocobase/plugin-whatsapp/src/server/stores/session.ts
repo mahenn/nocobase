@@ -106,6 +106,6 @@ export async function useSession(sessionId: string, app: any): Promise<{
         }
       }
     },
-    saveCreds: () => write(creds, 'creds')
+    saveCreds: () => write(creds, null)
   };
 }

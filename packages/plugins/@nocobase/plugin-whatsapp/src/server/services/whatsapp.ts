@@ -41,11 +41,17 @@ export class WhatsAppService {
   private retries: Map<string, number>;
   private readonly MAX_RECONNECT_RETRIES = 5;
   private readonly RECONNECT_INTERVAL = 3000;
+  private app: any;
 
-  async initialize() {
+  constructor(app: any,sessionService: SessionService) {
+    this.app = app;
+    this.sessionService = sessionService;
     this.sessions = new Map();
     this.retries = new Map();
-    this.sessionService = this.app.getService('session');
+  }
+
+  async initialize() {
+    //this.sessionService = this.app.getService('session');
     await this.loadSavedSessions();
   }
 
@@ -82,7 +88,7 @@ export class WhatsAppService {
     const { sessionId, readIncomingMessages = false, socketConfig } = options;
 
     if (this.sessions.has(sessionId)) {
-      throw new Error('Session already exists');
+      //throw new Error('Session already exists');
     }
 
     const session = await this.sessionService.findById(sessionId);

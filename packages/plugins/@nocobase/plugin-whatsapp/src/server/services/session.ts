@@ -19,6 +19,10 @@ interface SessionData {
 export class SessionService {
   private repository: Repository;
 
+  constructor(app: any) {
+    this.app = app;
+  }
+  
   async initialize() {
     this.repository = this.app.db.getRepository('sessions');
   }
