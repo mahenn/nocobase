@@ -15,7 +15,7 @@ export default {
   fields: [
     {
       type: 'bigInt',
-      name: 'id',
+      name: 'pkId',
       primaryKey: true,
       autoIncrement: true,
     },
@@ -28,6 +28,10 @@ export default {
     {
       type: 'string',
       name: 'status',
+    },
+    {
+      type: 'string',
+      name: 'id',
     },
     {
       type: 'text',

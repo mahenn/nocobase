@@ -104,17 +104,17 @@ export class WhatsAppService {
   async createSession(options: CreateSessionOptions) {
     const { sessionId, readIncomingMessages = false, socketConfig, SSE = false } = options;
 
-    if (this.sessionExists(sessionId)) {
-      return this.sessions.get(sessionId);
-    }
+    // if (this.sessionExists(sessionId)) {
+    //   return this.sessions.get(sessionId);
+    // }
 
     const { state, saveCreds } = await useSession(sessionId, this.app);
 
     const socket = makeWASocket({
       printQRInTerminal: true,
       generateHighQualityLinkPreview: true,
-      browser: [process.env.BOT_NAME || "NocoBase Bot", "Chrome", "3.0"],
-      version: [2, 3000, 1015901307],
+      //browser: [process.env.BOT_NAME || "NocoBase Bot", "Chrome", "3.0"],
+      //version: [2, 3000, 1015901307],
       ...socketConfig,
       auth: {
         creds: state?.creds || {},
@@ -122,6 +122,10 @@ export class WhatsAppService {
       },
       logger,
       shouldIgnoreJid: (jid) => isJidBroadcast(jid),
+      // Add connection timeout
+      connectTimeoutMs: 30000,
+      // Add retry settings
+      retryRequestDelayMs: 2000
     });
 
     const store = new Store(sessionId, socket.ev, this.app.db);
@@ -166,20 +170,27 @@ export class WhatsAppService {
         });
         this.updateWaConnection(sessionId, WAStatus.Connected);
         this.retries.delete(sessionId);
+
       }
 
       if (connection === 'close') {
-        const shouldReconnect = 
-          (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut &&
-          this.shouldReconnect(sessionId);
+          
+          const shouldReconnect = this.shouldReconnect(sessionId);
+          const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
 
-        if (shouldReconnect) {
+        if (statusCode === DisconnectReason.loggedOut) {
+            // Handle logout specifically
+            await this.deleteSession(sessionId);
+            this.updateWaConnection(sessionId, WAStatus.Disconnected);
+          } else if (shouldReconnect) {
           setTimeout(
             () => this.createSession(options),
             this.RECONNECT_INTERVAL
           );
         } else {
           await this.deleteSession(sessionId);
+          this.updateWaConnection(sessionId, WAStatus.Disconnected);
+
           await this.app.db.getRepository('sessions').update({
             filter: { sessionId },
             values: { 
@@ -209,18 +220,18 @@ export class WhatsAppService {
       });
     }
 
-    const sessionObj: Session = {
-      socket,
-      store,
-      destroy: async () => {
-        store.unlisten();
-        await socket.logout();
-        this.sessions.delete(sessionId);
-      },
-      waStatus: WAStatus.Unknown,
-    };
+    const session: Session = {
+        socket,
+        store: new Store(socket, socket.ev, this.app.db),
+        destroy: async () => {
+          socket.ev.removeAllListeners();
+          await socket.logout();
+          await socket.end();
+        },
+        waStatus: WAStatus.Unknown
+      };
 
-    this.sessions.set(sessionId, sessionObj);
+    this.sessions.set(sessionId, session);
     
     await this.app.db.getRepository('sessions').update({
       filter: { sessionId },
@@ -229,7 +240,7 @@ export class WhatsAppService {
       }
     });
 
-    return sessionObj;
+    return session;
   }
 
   async deleteSession(sessionId: string) {

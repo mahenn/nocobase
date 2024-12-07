@@ -16,7 +16,7 @@ export async function useSession(sessionId: string, app: any): Promise<{
   const write = async (data: any, id: string) => {
     try {
       data = JSON.stringify(data, BufferJSON.replacer);
-      //id: fixId(id);
+      id = fixId(id);
       
       await repository.create({
         values: {
@@ -35,7 +35,7 @@ export async function useSession(sessionId: string, app: any): Promise<{
       const result = await repository.findOne({
         filter: {
           sessionId,
-          id: id,
+          id: fixId(id),
         },
       });
 
@@ -56,7 +56,7 @@ export async function useSession(sessionId: string, app: any): Promise<{
       await repository.destroy({
         filter: {
           sessionId,
-          id: id,
+          id: fixId(id),
         },
       });
     } catch (error) {
@@ -104,6 +104,6 @@ export async function useSession(sessionId: string, app: any): Promise<{
         }
       }
     },
-    saveCreds: () => write(creds, null)
+    saveCreds: () => write(creds, 'creds')
   };
 }

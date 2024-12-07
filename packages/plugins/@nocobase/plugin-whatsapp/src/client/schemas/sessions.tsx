@@ -4,7 +4,7 @@ import { ISchema } from '@nocobase/client';
 // Define collection schema
 export const sessionCollection = {
   name: 'sessions',
-  filterTargetKey: 'id',
+  filterTargetKey: 'pkId',
   fields: [
     {
       type: 'string',
