@@ -1,13 +1,4 @@
-/**
- * This file is part of the NocoBase (R) project.
- * Copyright (c) 2020-2024 NocoBase Co., Ltd.
- * Authors: NocoBase Team.
- *
- * This project is dual-licensed under AGPL-3.0 and NocoBase Commercial License.
- * For more information, please refer to: https://www.nocobase.com/agreement.
- */
-
-// plugins/whatsapp/src/collections/groupMetadata.ts
+// Collection schema for group metadata
 export default {
   name: 'groupMetadata',
   createdBy: true,
@@ -22,53 +13,64 @@ export default {
     {
       type: 'string',
       name: 'sessionId',
-      length: 128,
       index: true,
     },
     {
       type: 'string',
       name: 'id',
-      length: 128,
+      index: true,
     },
     {
       type: 'string',
       name: 'owner',
-      length: 128,
     },
     {
       type: 'string',
       name: 'subject',
-      length: 128,
+    },
+    {
+      type: 'integer',
+      name: 'subjectTime',
+    },
+    {
+      type: 'string',
+      name: 'subjectOwner',
+    },
+    {
+      type: 'text',
+      name: 'desc',
+    },
+    {
+      type: 'string',
+      name: 'descId',
+    },
+    {
+      type: 'string',
+      name: 'descOwner',
+    },
+    {
+      type: 'integer',
+      name: 'descTime',
     },
     {
       type: 'integer',
       name: 'creation',
     },
     {
-      type: 'string',
-      name: 'desc',
-      length: 500,
+      type: 'json',
+      name: 'participants',
     },
     {
       type: 'string',
-      name: 'descOwner',
-      length: 128,
-    },
-    {
-      type: 'boolean',
-      name: 'restrict',
+      name: 'announceVersionId',
     },
     {
       type: 'boolean',
       name: 'announce',
     },
     {
-      type: 'integer',
-      name: 'size',
-    },
-    {
-      type: 'json',
-      name: 'participants',
+      type: 'boolean',
+      name: 'noFrequentlyForwarded',
     },
     {
       type: 'integer',
@@ -76,41 +78,14 @@ export default {
     },
     {
       type: 'string',
-      name: 'inviteCode',
-      length: 255,
-    },
-    {
-      type: 'bigInt',
-      name: 'descId',
-    },
-    {
-      type: 'bigInt',
-      name: 'descTime',
-    },
-    {
-      type: 'string',
-      name: 'groupInviteLink',
-      length: 255,
-    },
-    {
-      type: 'boolean',
-      name: 'isParentGroup',
-    },
-    {
-      type: 'json',
       name: 'memberAddMode',
     },
     {
       type: 'integer',
-      name: 'numSubgroups',
+      name: 'size',
     },
     {
-      type: 'string',
-      name: 'parentGroupId',
-      length: 128,
-    },
-    {
-      type: 'json',
+      type: 'boolean',
       name: 'support',
     },
     {
@@ -118,15 +93,40 @@ export default {
       name: 'suspended',
     },
     {
-      type: 'json',
-      name: 'terminatedUserJids',
+      type: 'boolean',
+      name: 'terminated',
     },
     {
-      type: 'belongsTo',
-      name: 'session',
-      target: 'sessions',
-      foreignKey: 'sessionId',
-      targetKey: 'sessionId',
+      type: 'boolean',
+      name: 'restrict',
+    },
+    {
+      type: 'string',
+      name: 'defaultSubgroup',
+    },
+    {
+      type: 'string',
+      name: 'parentGroup',
+    },
+    {
+      type: 'boolean',
+      name: 'isParentGroup',
+    },
+    {
+      type: 'boolean',
+      name: 'isDefaultSubgroup',
+    },
+    {
+      type: 'boolean',
+      name: 'notificationsEnabled',
+    },
+    {
+      type: 'integer',
+      name: 'lastActivityTimestamp',
+    },
+    {
+      type: 'integer',
+      name: 'lastSeenActivityTimestamp',
     },
   ],
   indexes: [

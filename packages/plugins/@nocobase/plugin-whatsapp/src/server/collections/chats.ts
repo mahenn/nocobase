@@ -38,10 +38,6 @@ export default {
       name: 'conversationTimestamp',
     },
     {
-      type: 'bigInt',
-      name: 'createdAt',
-    },
-    {
       type: 'string',
       name: 'createdBy',
       length: 128,

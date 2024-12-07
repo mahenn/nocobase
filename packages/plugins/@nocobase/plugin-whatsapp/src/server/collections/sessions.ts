@@ -24,6 +24,7 @@ export default {
       name: 'sessionId',
       length: 128,
       index: true,
+      unique: true,
     },
     {
       type: 'string',

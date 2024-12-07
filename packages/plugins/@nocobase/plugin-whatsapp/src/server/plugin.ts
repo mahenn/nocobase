@@ -29,13 +29,15 @@ export class PluginWhatsappServer extends Plugin {
 
   async load() {
   
+    
+
      this.whatsappService = new WhatsAppService(this.app);
     
     // Register the service for dependency injection
     //this.app.set('whatsapp.service', this.whatsappService);
 
-    // Initialize saved sessions
-    //await this.whatsappService.initialize();
+    //Initialize saved sessions
+    await this.whatsappService.initialize();
     
     // Update the event listener to use the instance method
     this.db.on('sessions.afterCreate', async (session, options) => {

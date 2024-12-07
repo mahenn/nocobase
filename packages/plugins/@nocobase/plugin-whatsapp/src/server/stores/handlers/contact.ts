@@ -1,6 +1,6 @@
 // /packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/handlers/contact.ts
 
-import type { BaileysEventEmitter, Contact } from '@whiskeysockets/baileys';
+import { BaileysEventEmitter, Contact } from '@whiskeysockets/baileys';
 import { logger } from '../../utils/logger';
 
 export class ContactHandler {
@@ -13,6 +13,10 @@ export class ContactHandler {
     private readonly db: any
   ) {
     this.repository = db.getRepository('contacts');
+    // Bind methods
+    this.handleSet = this.handleSet.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
+    this.handleUpsert = this.handleUpsert.bind(this);
   }
 
   private processContact(contact: Contact) {
@@ -29,66 +33,79 @@ export class ContactHandler {
 
   async handleSet({ contacts }: { contacts: Contact[] }) {
     try {
-      const processedContacts = contacts.map(this.processContact.bind(this));
+      //await this.db.sequelize.transaction(async (transaction) => {
+        // Process contacts in batches to avoid memory issues
+        const batchSize = 100;
+        for (let i = 0; i < contacts.length; i += batchSize) {
+          const batch = contacts.slice(i, i + batchSize);
+          const processedContacts = batch.map(contact => this.processContact(contact));
 
-      for (const contact of processedContacts) {
-        await this.repository.create({
-          values: contact,
-          filter: {
-            id: contact.id,
-            sessionId: this.sessionId
+          for (const contact of processedContacts) {
+            await this.repository.updateOrCreate({
+              values: contact,
+              filterKeys: ['sessionId', 'id'],
+              // filter: {
+              //   sessionId_id: { 
+              //     sessionId: this.sessionId,
+              //     id: contact.id 
+              //   }
+              // },
+              //transaction
+            });
           }
-        });
-      }
+        }
+      //});
 
       logger.info(`Synced ${contacts.length} contacts`);
     } catch (error) {
-      logger.error('Error in handleSet:', error);
+      logger.error('Contact sync error:', error);
     }
   }
 
   async handleUpsert(contacts: Contact[]) {
     try {
-      const processedContacts = contacts.map(this.processContact.bind(this));
+      const processedContacts = contacts.map(contact => this.processContact(contact));
 
       for (const contact of processedContacts) {
         await this.repository.create({
           values: contact,
           filter: {
-            id: contact.id,
-            sessionId: this.sessionId
+            sessionId_id: { 
+              sessionId: this.sessionId,
+              id: contact.id 
+            }
           }
         });
       }
     } catch (error) {
-      logger.error('Error in handleUpsert:', error);
+      logger.error('Contact upsert error:', error);
     }
   }
 
   async handleUpdate(updates: Partial<Contact>[]) {
-    for (const update of updates) {
-      try {
+    try {
+      for (const update of updates) {
         if (!update.id) continue;
 
         await this.repository.update({
           filter: {
-            id: update.id,
-            sessionId: this.sessionId
+            sessionId: this.sessionId,
+            id: update.id
           },
           values: update
         });
-      } catch (error) {
-        logger.error('Error in handleUpdate:', error);
       }
+    } catch (error) {
+      logger.error('Contact update error:', error);
     }
   }
 
   listen() {
     if (this.listening) return;
 
-    this.eventEmitter.on('messaging-history.set', this.handleSet.bind(this));
-    this.eventEmitter.on('contacts.upsert', this.handleUpsert.bind(this));
-    this.eventEmitter.on('contacts.update', this.handleUpdate.bind(this));
+    this.eventEmitter.on('messaging-history.set', this.handleSet);
+    this.eventEmitter.on('contacts.upsert', this.handleUpsert);
+    this.eventEmitter.on('contacts.update', this.handleUpdate);
 
     this.listening = true;
   }
@@ -96,9 +113,9 @@ export class ContactHandler {
   unlisten() {
     if (!this.listening) return;
 
-    this.eventEmitter.off('messaging-history.set', this.handleSet.bind(this));
-    this.eventEmitter.off('contacts.upsert', this.handleUpsert.bind(this));
-    this.eventEmitter.off('contacts.update', this.handleUpdate.bind(this));
+    this.eventEmitter.off('messaging-history.set', this.handleSet);
+    this.eventEmitter.off('contacts.upsert', this.handleUpsert);
+    this.eventEmitter.off('contacts.update', this.handleUpdate);
 
     this.listening = false;
   }

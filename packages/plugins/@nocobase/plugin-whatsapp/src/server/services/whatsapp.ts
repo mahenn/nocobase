@@ -5,6 +5,8 @@ import makeWASocket, {
   isJidBroadcast,
   makeCacheableSignalKeyStore,
   proto,
+  useMultiFileAuthState,
+  fetchLatestBaileysVersion,
   WASocket
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
@@ -104,13 +106,34 @@ export class WhatsAppService {
   async createSession(options: CreateSessionOptions) {
     const { sessionId, readIncomingMessages = false, socketConfig, SSE = false } = options;
 
-    // if (this.sessionExists(sessionId)) {
-    //   return this.sessions.get(sessionId);
-    // }
+    console.log("session Id is ",sessionId);
 
-    const { state, saveCreds } = await useSession(sessionId, this.app);
+    
+    // const existingSession = await this.app.db.getRepository('sessions').findOne({
+    //     filter: { sessionId }
+    //   });
+
+    //   if (existingSession) {
+    //     // Clean up existing session if it's in memory
+    //     if (this.sessions.has(sessionId)) {
+    //       await this.deleteSession(sessionId);
+    //     }
+    //   }
+
+    if (this.sessionExists(sessionId)) {
+      console.log("found existing seession",sessionId);
+      //return this.sessions.get(sessionId);
+    }
+
+
+    const { state, saveCreds } = await useMultiFileAuthState(`./sessions/${sessionId}`);
+
+    const { version, isLatest } = await fetchLatestBaileysVersion();
+    console.log(`Using WhatsApp version: ${version.join('.')}, is latest: ${isLatest}`);
+    
 
     const socket = makeWASocket({
+      version,
       printQRInTerminal: true,
       generateHighQualityLinkPreview: true,
       //browser: [process.env.BOT_NAME || "NocoBase Bot", "Chrome", "3.0"],
@@ -127,6 +150,7 @@ export class WhatsAppService {
       // Add retry settings
       retryRequestDelayMs: 2000
     });
+
 
     const store = new Store(sessionId, socket.ev, this.app.db);
 
@@ -145,9 +169,10 @@ export class WhatsAppService {
               (WhatsAppService.SSEQRGenerations.get(sessionId) || 0) + 1
             );
           }
-
+          console.log("updating qr code in session ",sessionId);
           await this.app.db.getRepository('sessions').update({
-            filter: { sessionId },
+            //filter: { sessionId },
+            filterByTk: sessionId,
             values: { 
               qrCode: JSON.stringify({ qrCode }),
               status: WAStatus.WaitQrcodeAuth
@@ -161,8 +186,10 @@ export class WhatsAppService {
       }
 
       if (connection === 'open') {
+        console.log("received open connect for session ",sessionId);
         await this.app.db.getRepository('sessions').update({
-          filter: { sessionId },
+          //filter: { sessionId },
+          filterByTk: sessionId,
           values: { 
             status: WAStatus.Connected,
             lastConnection: new Date()
@@ -174,7 +201,7 @@ export class WhatsAppService {
       }
 
       if (connection === 'close') {
-          
+          console.log("received close connect for session ",sessionId);
           const shouldReconnect = this.shouldReconnect(sessionId);
           const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
 
@@ -205,7 +232,7 @@ export class WhatsAppService {
       }
     });
 
-    if (readIncomingMessages) {
+    //if (readIncomingMessages) {
       socket.ev.on('messages.upsert', async (m) => {
         const message = m.messages[0];
         if (message.key.fromMe || m.type !== 'notify') return;
@@ -218,14 +245,21 @@ export class WhatsAppService {
           message: message
         });
       });
-    }
+   // }
 
     const session: Session = {
         socket,
-        store: new Store(socket, socket.ev, this.app.db),
+        store,
         destroy: async () => {
           socket.ev.removeAllListeners();
-          await socket.logout();
+          const isConnected = socket.ws?.readyState === WebSocket.OPEN;
+          if (isConnected) {
+            try {
+              await socket.logout();
+            } catch (error) {
+              logger.warn('Error during logout:', error);
+            }
+          }
           await socket.end();
         },
         waStatus: WAStatus.Unknown
@@ -250,6 +284,18 @@ export class WhatsAppService {
       this.sessions.delete(sessionId);
       this.retries.delete(sessionId);
       WhatsAppService.SSEQRGenerations.delete(sessionId);
+
+       try {
+          await this.app.db.getRepository('sessions').update({
+            filter: { sessionId },
+            values: { 
+              status: WAStatus.Disconnected,
+              lastConnection: new Date()
+            }
+          });
+        } catch (dbError) {
+          logger.error(`Error updating session status in database:`, dbError);
+        }
     }
   }
 

@@ -18,12 +18,13 @@ export async function useSession(sessionId: string, app: any): Promise<{
       data = JSON.stringify(data, BufferJSON.replacer);
       id = fixId(id);
       
-      await repository.create({
+      await repository.updateOrCreate({
         values: {
           sessionId,
           id,
           data,
         },
+        filterKeys: ['sessionId'],
       });
     } catch (error) {
       logger.error('Session write error:', error);

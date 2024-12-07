@@ -21,6 +21,7 @@ export class Store {
     this.messageHandler = new MessageHandler(sessionId, eventEmitter, db);
     this.contactHandler = new ContactHandler(sessionId, eventEmitter, db);
     this.groupMetadataHandler = new GroupMetadataHandler(sessionId, eventEmitter, db);
+    this.listen();
   }
 
   public listen() {
