@@ -1,115 +1,74 @@
-// packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/handlers/chat.ts
+// /packages/plugins/@nocobase/plugin-whatsapp/src/server/handlers/chat.ts
 
-import type { BaileysEventEmitter } from '@whiskeysockets/baileys';
-import type { BaileysEventHandler } from '../types';
+import { BaileysEventEmitter } from '@whiskeysockets/baileys';
 import { logger } from '../../utils/logger';
 
-export default function chatHandler(sessionId: string, event: BaileysEventEmitter, app: any) {
-  const repository = app.db.getRepository('chats');
-  let listening = false;
+export class ChatHandler {
+  private listening = false;
+  private repository: any;
 
-  const set: BaileysEventHandler<'messaging-history.set'> = async ({ chats, isLatest }) => {
+  constructor(
+    private readonly sessionId: string,
+    private readonly eventEmitter: BaileysEventEmitter,
+    private readonly db: any
+  ) {
+    this.repository = db.getRepository('chats');
+  }
+
+  async handleSet({ chats, isLatest }: any) {
     try {
       if (isLatest) {
-        await repository.destroy({
-          filter: { sessionId }
+        await this.repository.destroy({
+          filter: { sessionId: this.sessionId }
         });
       }
 
-      const existingChats = await repository.find({
-        filter: {
-          id: { $in: chats.map(c => c.id) },
-          sessionId
-        }
+      const processedChats = chats.map((chat: any) => ({
+        ...this.transformChat(chat),
+        sessionId: this.sessionId
+      }));
+
+      await this.repository.create({
+        values: processedChats
       });
 
-      const existingIds = existingChats.map(c => c.id);
-      const processedChats = chats
-        .filter(c => !existingIds.includes(c.id))
-        .map(c => ({
-          ...c,
-          sessionId
-        }));
-
-      if (processedChats.length > 0) {
-        await repository.create({
-          values: processedChats
-        });
-      }
-
-      logger.info({ chatsAdded: processedChats.length }, 'Synced chats');
-    } catch (e) {
-      logger.error(e, 'An error occurred during chats set');
+      logger.info(`Synced ${chats.length} chats`);
+    } catch (error) {
+      logger.error('Chat sync error:', error);
     }
-  };
+  }
 
-  const upsert: BaileysEventHandler<'chats.upsert'> = async (chats) => {
-    try {
-      for (const chat of chats) {
-        await repository.create({
-          values: {
-            ...chat,
-            sessionId
-          },
-          filter: {
-            id: chat.id,
-            sessionId
-          }
-        });
-      }
-    } catch (e) {
-      logger.error(e, 'An error occurred during chats upsert');
-    }
-  };
+  private transformChat(chat: any) {
+    return {
+      id: chat.id,
+      name: chat.name,
+      unreadCount: chat.unreadCount,
+      timestamp: chat.timestamp,
+      // Add other relevant fields
+    };
+  }
 
-  const update: BaileysEventHandler<'chats.update'> = async (updates) => {
-    for (const update of updates) {
-      try {
-        await repository.update({
-          filter: {
-            id: update.id,
-            sessionId
-          },
-          values: update
-        });
-      } catch (e) {
-        logger.error(e, 'An error occurred during chat update');
-      }
-    }
-  };
+  listen() {
+    if (this.listening) return;
 
-  const del: BaileysEventHandler<'chats.delete'> = async (ids) => {
-    try {
-      await repository.destroy({
-        filter: {
-          id: { $in: ids },
-          sessionId
-        }
-      });
-    } catch (e) {
-      logger.error(e, 'An error occurred during chats delete');
-    }
-  };
+    this.eventEmitter.on('messaging-history.set', this.handleSet.bind(this));
+    this.eventEmitter.on('chats.upsert', this.handleUpsert.bind(this));
+    this.eventEmitter.on('chats.update', this.handleUpdate.bind(this));
+    this.eventEmitter.on('chats.delete', this.handleDelete.bind(this));
 
-  const listen = () => {
-    if (listening) return;
+    this.listening = true;
+  }
 
-    event.on('messaging-history.set', set);
-    event.on('chats.upsert', upsert);
-    event.on('chats.update', update);
-    event.on('chats.delete', del);
-    listening = true;
-  };
+  unlisten() {
+    if (!this.listening) return;
 
-  const unlisten = () => {
-    if (!listening) return;
+    this.eventEmitter.off('messaging-history.set', this.handleSet.bind(this));
+    this.eventEmitter.off('chats.upsert', this.handleUpsert.bind(this));
+    this.eventEmitter.off('chats.update', this.handleUpdate.bind(this));
+    this.eventEmitter.off('chats.delete', this.handleDelete.bind(this));
 
-    event.off('messaging-history.set', set);
-    event.off('chats.upsert', upsert);
-    event.off('chats.update', update);
-    event.off('chats.delete', del);
-    listening = false;
-  };
+    this.listening = false;
+  }
 
-  return { listen, unlisten };
+  // Implement other handlers...
 }

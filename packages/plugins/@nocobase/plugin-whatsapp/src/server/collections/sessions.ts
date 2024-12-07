@@ -54,6 +54,25 @@ export default {
       type: 'boolean', 
     },
     {
+      type: 'json',
+      name: 'error',
+      description: 'Stores error information'
+    },
+    {
+      type: 'json',
+      name: 'connectionState',
+      description: 'Current connection state'
+    },
+    {
+      type: 'integer',
+      name: 'retryCount',
+      defaultValue: 0
+    },
+    {
+      type: 'date',
+      name: 'lastConnected'
+    },
+    {
       type: 'hasMany',
       name: 'chats',
       target: 'chats',

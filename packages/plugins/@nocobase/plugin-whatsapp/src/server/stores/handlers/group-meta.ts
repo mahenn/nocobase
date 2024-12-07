@@ -1,75 +1,96 @@
-// packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/handlers/group-meta.ts
+// /packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/handlers/group-meta.ts
 
-import type { BaileysEventEmitter } from '@whiskeysockets/baileys';
-import type { BaileysEventHandler } from '../types';
+import type { BaileysEventEmitter, GroupMetadata } from '@whiskeysockets/baileys';
 import { logger } from '../../utils/logger';
 
-export default function groupMetadataHandler(sessionId: string, event: BaileysEventEmitter, app: any) {
-  const repository = app.db.getRepository('groups');
-  let listening = false;
+export class GroupMetadataHandler {
+  private listening = false;
+  private repository: any;
 
-  const processGroupMetadata = (groupMetadata: any) => ({
-    ...groupMetadata,
-    sessionId,
-    id: groupMetadata.id,
-    subject: groupMetadata.subject,
-    creation: groupMetadata.creation,
-    owner: groupMetadata.owner,
-    participants: JSON.stringify(groupMetadata.participants),
-    ephemeralDuration: groupMetadata.ephemeralDuration
-  });
+  constructor(
+    private readonly sessionId: string,
+    private readonly eventEmitter: BaileysEventEmitter,
+    private readonly db: any
+  ) {
+    this.repository = db.getRepository('groups');
+  }
 
-  const update: BaileysEventHandler<'groups.update'> = async (updates) => {
-    for (const update of updates) {
-      try {
-        await repository.update({
-          filter: {
-            id: update.id,
-            sessionId
-          },
-          values: update
-        });
-      } catch (e) {
-        logger.error(e, 'An error occurred during group update');
-      }
-    }
-  };
+  private processGroupMetadata(group: GroupMetadata) {
+    return {
+      sessionId: this.sessionId,
+      id: group.id,
+      subject: group.subject,
+      creation: group.creation,
+      owner: group.owner,
+      desc: group.desc,
+      participants: JSON.stringify(group.participants),
+      ephemeralDuration: group.ephemeralDuration
+    };
+  }
 
-  const upsert: BaileysEventHandler<'groups.upsert'> = async (groupMetadata) => {
+  async handleUpsert(groups: GroupMetadata[]) {
     try {
-      const processedGroups = groupMetadata.map(processGroupMetadata);
+      const processedGroups = groups.map(this.processGroupMetadata.bind(this));
 
       for (const group of processedGroups) {
-        await repository.create({
+        await this.repository.create({
           values: group,
           filter: {
             id: group.id,
-            sessionId
+            sessionId: this.sessionId
           }
         });
       }
-    } catch (e) {
-      logger.error(e, 'An error occurred during group upsert');
+    } catch (error) {
+      logger.error('Error in handleUpsert:', error);
     }
-  };
+  }
 
-  const updateParticipants: BaileysEventHandler<'group-participants.update'> = async ({ id, participants, action }) => {
+  async handleUpdate(updates: Partial<GroupMetadata>[]) {
+    for (const update of updates) {
+      try {
+        if (!update.id) continue;
+
+        await this.repository.update({
+          filter: {
+            id: update.id,
+            sessionId: this.sessionId
+          },
+          values: update
+        });
+      } catch (error) {
+        logger.error('Error in handleUpdate:', error);
+      }
+    }
+  }
+
+  async handleParticipantsUpdate({ id, participants, action }: { 
+    id: string, 
+    participants: string[], 
+    action: 'add' | 'remove' | 'promote' | 'demote' 
+  }) {
     try {
-      const group = await repository.findOne({
+      const group = await this.repository.findOne({
         filter: {
           id,
-          sessionId
+          sessionId: this.sessionId
         }
       });
 
-      if (!group) return;
+      if (!group) {
+        logger.info(`Group ${id} not found for participants update`);
+        return;
+      }
 
       const currentParticipants = JSON.parse(group.participants || '[]');
       let updatedParticipants;
 
       switch (action) {
         case 'add':
-          updatedParticipants = [...currentParticipants, ...participants.map(jid => ({ id: jid, isAdmin: false }))];
+          updatedParticipants = [
+            ...currentParticipants,
+            ...participants.map(jid => ({ id: jid, isAdmin: false }))
+          ];
           break;
         case 'remove':
           updatedParticipants = currentParticipants.filter(p => !participants.includes(p.id));
@@ -83,37 +104,37 @@ export default function groupMetadataHandler(sessionId: string, event: BaileysEv
           break;
       }
 
-      await repository.update({
+      await this.repository.update({
         filter: {
           id,
-          sessionId
+          sessionId: this.sessionId
         },
         values: {
           participants: JSON.stringify(updatedParticipants)
         }
       });
-    } catch (e) {
-      logger.error(e, 'An error occurred during group participants update');
+    } catch (error) {
+      logger.error('Error in handleParticipantsUpdate:', error);
     }
-  };
+  }
 
-  const listen = () => {
-    if (listening) return;
+  listen() {
+    if (this.listening) return;
 
-    event.on('groups.upsert', upsert);
-    event.on('groups.update', update);
-    event.on('group-participants.update', updateParticipants);
-    listening = true;
-  };
+    this.eventEmitter.on('groups.upsert', this.handleUpsert.bind(this));
+    this.eventEmitter.on('groups.update', this.handleUpdate.bind(this));
+    this.eventEmitter.on('group-participants.update', this.handleParticipantsUpdate.bind(this));
 
-  const unlisten = () => {
-    if (!listening) return;
+    this.listening = true;
+  }
 
-    event.off('groups.upsert', upsert);
-    event.off('groups.update', update);
-    event.off('group-participants.update', updateParticipants);
-    listening = false;
-  };
+  unlisten() {
+    if (!this.listening) return;
 
-  return { listen, unlisten };
+    this.eventEmitter.off('groups.upsert', this.handleUpsert.bind(this));
+    this.eventEmitter.off('groups.update', this.handleUpdate.bind(this));
+    this.eventEmitter.off('group-participants.update', this.handleParticipantsUpdate.bind(this));
+
+    this.listening = false;
+  }
 }

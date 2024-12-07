@@ -10,30 +10,33 @@
 import { Plugin } from '@nocobase/server';
 import path from 'path';
 import { WhatsAppService } from './services/whatsapp';
-import { SessionService } from './services/session';
+import { whatsappActions } from './actions/session';
 
 
 export class PluginWhatsappServer extends Plugin {
 
   whatsappService: WhatsAppService;
-  sessionService: SessionService;
-
+  
   async afterAdd() {}
 
-  async beforeLoad() {}
+  async beforeLoad() {
 
-  async load() {
-  
     await this.db.import({
       directory: path.resolve(__dirname, 'collections'),
     });
 
-  
-    // Initialize SessionService first
-    this.sessionService = new SessionService(this.app);
-    await this.sessionService.initialize();
+  }
 
-    this.whatsappService = new WhatsAppService(this.app,this.sessionService);
+  async load() {
+  
+    
+
+     this.whatsappService = new WhatsAppService(this.app);
+    
+    // Register the service for dependency injection
+    //this.app.set('whatsapp.service', this.whatsappService);
+
+    // Initialize saved sessions
     await this.whatsappService.initialize();
     
     // Update the event listener to use the instance method
@@ -43,18 +46,12 @@ export class PluginWhatsappServer extends Plugin {
       await this.whatsappService.createSession({sessionId}); // Use instance method
     });
 
-    // Register actions for sessions resource
-    this.app.resourcer.define({
-      name: 'sessions',
-      // actions: {
-      //   // list: sessionActions.list,
-      //   // create: sessionActions.create,
-      //   // destroy: sessionActions.destroy,
-      //   // status: sessionActions.status,
-      // },
+    this.app.resource({
+      name: 'whatsapp',
+      actions: whatsappActions
     });
 
-   // Register services in the plugin manager
+    // Register services in the plugin manager
     // this.app.pm.add('session', this.sessionService);
     // this.app.pm.add('whatsapp', this.whatsappService);
 
@@ -73,7 +70,17 @@ export class PluginWhatsappServer extends Plugin {
 
   async afterDisable() {}
 
-  async remove() {}
+  async remove() {
+
+    if (this.whatsappService) {
+      const sessions = this.whatsappService.listSessions();
+      await Promise.all(
+        sessions.map(session => 
+          this.whatsappService.deleteSession(session.sessionId)
+        )
+      );
+    }
+  }
 }
 
 export default PluginWhatsappServer;

@@ -1,20 +1,26 @@
-// packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/store.ts
+// /packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/store.ts
 
-import type { BaileysEventEmitter } from '@whiskeysockets/baileys';
-import * as handlers from './handlers';
+import { BaileysEventEmitter } from '@whiskeysockets/baileys';
+import { ChatHandler } from './handlers/chat';
+import { MessageHandler } from './handlers/message';
+import { ContactHandler } from './handlers/contact';
+import { GroupMetadataHandler } from './handlers/group-meta';
 
 export class Store {
-  private readonly chatHandler;
-  private readonly messageHandler;
-  private readonly contactHandler;
-  private readonly groupMetadataHandler;
+  private readonly chatHandler: ChatHandler;
+  private readonly messageHandler: MessageHandler;
+  private readonly contactHandler: ContactHandler;
+  private readonly groupMetadataHandler: GroupMetadataHandler;
 
-  constructor(sessionId: string, event: BaileysEventEmitter, app: any) {
-    this.chatHandler = handlers.chatHandler(sessionId, event, app);
-    this.messageHandler = handlers.messageHandler(sessionId, event, app);
-    this.contactHandler = handlers.contactHandler(sessionId, event, app);
-    this.groupMetadataHandler = handlers.groupMetadataHandler(sessionId, event, app);
-    this.listen();
+  constructor(
+    private readonly sessionId: string,
+    private readonly eventEmitter: BaileysEventEmitter,
+    private readonly db: any
+  ) {
+    this.chatHandler = new ChatHandler(sessionId, eventEmitter, db);
+    this.messageHandler = new MessageHandler(sessionId, eventEmitter, db);
+    this.contactHandler = new ContactHandler(sessionId, eventEmitter, db);
+    this.groupMetadataHandler = new GroupMetadataHandler(sessionId, eventEmitter, db);
   }
 
   public listen() {

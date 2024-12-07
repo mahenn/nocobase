@@ -1,122 +1,156 @@
-// packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/handlers/message.ts
+// /packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/handlers/message.ts
 
-import type { BaileysEventEmitter, WAMessage } from '@whiskeysockets/baileys';
-import type { BaileysEventHandler } from '../types';
+import type { BaileysEventEmitter, WAMessage, MessageUserReceipt, proto } from '@whiskeysockets/baileys';
 import { logger } from '../../utils/logger';
 
-export default function messageHandler(sessionId: string, event: BaileysEventEmitter, app: any) {
-  const repository = app.db.getRepository('messages');
-  let listening = false;
+export class MessageHandler {
+  private listening = false;
+  private repository: any;
 
-  const processMessage = (msg: WAMessage) => ({
-    ...msg,
-    sessionId,
-    remoteJid: msg.key.remoteJid,
-    id: msg.key.id,
-    fromMe: msg.key.fromMe,
-    messageTimestamp: msg.messageTimestamp,
-    pushName: msg.pushName,
-    message: JSON.stringify(msg.message)
-  });
+  constructor(
+    private readonly sessionId: string,
+    private readonly eventEmitter: BaileysEventEmitter,
+    private readonly db: any
+  ) {
+    this.repository = db.getRepository('messages');
+  }
 
-  const set: BaileysEventHandler<'messaging-history.set'> = async ({ messages, isLatest }) => {
+  private processMessage(msg: WAMessage) {
+    return {
+      sessionId: this.sessionId,
+      id: msg.key.id,
+      remoteJid: msg.key.remoteJid,
+      fromMe: msg.key.fromMe,
+      messageTimestamp: msg.messageTimestamp,
+      pushName: msg.pushName,
+      message: JSON.stringify(msg.message),
+      status: msg.status,
+      type: msg.type,
+      // Add additional fields as needed
+    };
+  }
+
+  async handleSet({ messages, isLatest }: { messages: WAMessage[], isLatest: boolean }) {
     try {
       if (isLatest) {
-        await repository.destroy({
-          filter: { sessionId }
+        await this.repository.destroy({
+          filter: { sessionId: this.sessionId }
         });
       }
 
-      const processedMessages = messages.map(processMessage);
+      const processedMessages = messages.map(this.processMessage.bind(this));
 
       for (const message of processedMessages) {
-        await repository.create({
+        await this.repository.create({
           values: message,
           filter: {
             id: message.id,
-            sessionId
+            sessionId: this.sessionId
           }
         });
       }
 
-      logger.info({ messagesAdded: messages.length }, 'Synced messages');
-    } catch (e) {
-      logger.error(e, 'An error occurred during messages set');
+      logger.info(`Synced ${messages.length} messages`);
+    } catch (error) {
+      logger.error('Error in handleSet:', error);
     }
-  };
+  }
 
-  const upsert: BaileysEventHandler<'messages.upsert'> = async ({ messages, type }) => {
+  async handleUpsert({ messages, type }: { messages: WAMessage[], type: string }) {
     try {
-      const processedMessages = messages.map(processMessage);
+      const processedMessages = messages.map(msg => ({
+        ...this.processMessage(msg),
+        type
+      }));
 
       for (const message of processedMessages) {
-        await repository.create({
-          values: {
-            ...message,
-            type
-          },
+        await this.repository.create({
+          values: message,
           filter: {
             id: message.id,
-            sessionId
+            sessionId: this.sessionId
           }
         });
       }
-    } catch (e) {
-      logger.error(e, 'An error occurred during messages upsert');
+    } catch (error) {
+      logger.error('Error in handleUpsert:', error);
     }
-  };
+  }
 
-  const update: BaileysEventHandler<'messages.update'> = async (updates) => {
+  async handleUpdate(updates: Partial<WAMessage>[]) {
     for (const update of updates) {
       try {
-        await repository.update({
+        if (!update.key?.id) continue;
+
+        await this.repository.update({
           filter: {
             id: update.key.id,
-            sessionId
+            sessionId: this.sessionId
           },
           values: {
-            status: update.update.status,
-            messageStubType: update.update.messageStubType
+            status: update.status,
+            messageStubType: update.messageStubType
           }
         });
-      } catch (e) {
-        logger.error(e, 'An error occurred during message update');
+      } catch (error) {
+        logger.error('Error in handleUpdate:', error);
       }
     }
-  };
+  }
 
-  const del: BaileysEventHandler<'messages.delete'> = async (item) => {
+  async handleDelete(key: { id: string }) {
     try {
-      await repository.destroy({
+      await this.repository.destroy({
         filter: {
-          id: item.key.id,
-          sessionId
+          id: key.id,
+          sessionId: this.sessionId
         }
       });
-    } catch (e) {
-      logger.error(e, 'An error occurred during message delete');
+    } catch (error) {
+      logger.error('Error in handleDelete:', error);
     }
-  };
+  }
 
-  const listen = () => {
-    if (listening) return;
+  async handleReceiptUpdate(updates: { key: proto.IMessageKey; receipt: MessageUserReceipt }[]) {
+    for (const { key, receipt } of updates) {
+      try {
+        await this.repository.update({
+          filter: {
+            id: key.id,
+            sessionId: this.sessionId
+          },
+          values: {
+            receiptTimestamp: receipt.t,
+            readStatus: receipt.readTimestamp ? 'read' : 'delivered'
+          }
+        });
+      } catch (error) {
+        logger.error('Error in handleReceiptUpdate:', error);
+      }
+    }
+  }
 
-    event.on('messaging-history.set', set);
-    event.on('messages.upsert', upsert);
-    event.on('messages.update', update);
-    event.on('messages.delete', del);
-    listening = true;
-  };
+  listen() {
+    if (this.listening) return;
 
-  const unlisten = () => {
-    if (!listening) return;
+    this.eventEmitter.on('messaging-history.set', this.handleSet.bind(this));
+    this.eventEmitter.on('messages.upsert', this.handleUpsert.bind(this));
+    this.eventEmitter.on('messages.update', this.handleUpdate.bind(this));
+    this.eventEmitter.on('messages.delete', this.handleDelete.bind(this));
+    this.eventEmitter.on('message-receipt.update', this.handleReceiptUpdate.bind(this));
 
-    event.off('messaging-history.set', set);
-    event.off('messages.upsert', upsert);
-    event.off('messages.update', update);
-    event.off('messages.delete', del);
-    listening = false;
-  };
+    this.listening = true;
+  }
 
-  return { listen, unlisten };
+  unlisten() {
+    if (!this.listening) return;
+
+    this.eventEmitter.off('messaging-history.set', this.handleSet.bind(this));
+    this.eventEmitter.off('messages.upsert', this.handleUpsert.bind(this));
+    this.eventEmitter.off('messages.update', this.handleUpdate.bind(this));
+    this.eventEmitter.off('messages.delete', this.handleDelete.bind(this));
+    this.eventEmitter.off('message-receipt.update', this.handleReceiptUpdate.bind(this));
+
+    this.listening = false;
+  }
 }

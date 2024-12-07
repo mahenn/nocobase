@@ -17,16 +17,56 @@ interface SessionData {
 }
 
 export class SessionService {
+
   private repository: Repository;
+  private retries: Map<string, number>;
+  private readonly MAX_RETRIES = 5;
 
   constructor(app: any) {
     this.app = app;
+    this.retries = new Map();
   }
-  
+
   async initialize() {
     this.repository = this.app.db.getRepository('sessions');
   }
 
+  async updateSessionState(sessionId: string, state: any) {
+    try {
+      const data = JSON.stringify(state, BufferJSON.replacer);
+      await this.repository.update({
+        filter: {
+          sessionId,
+        },
+        values: {
+          state: data
+        }
+      });
+    } catch (error) {
+      logger.error('Failed to update session state:', error);
+      throw error;
+    }
+  }
+
+  async getSessionState(sessionId: string) {
+    try {
+      const session = await this.findById(sessionId);
+      if (!session?.state) return null;
+      return JSON.parse(session.state, BufferJSON.reviver);
+    } catch (error) {
+      logger.error('Failed to get session state:', error);
+      return null;
+    }
+  }
+
+  async updateSessionStatus(sessionId: string, status: WAStatus) {
+    return await this.update(sessionId, {
+      status,
+      lastStatusUpdate: new Date()
+    });
+  }
+
+  /* need to check if below codes require*/
   async create(data: SessionData) {
     return await this.repository.create({
       values: data,
