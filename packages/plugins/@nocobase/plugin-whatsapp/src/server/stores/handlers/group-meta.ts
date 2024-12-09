@@ -107,6 +107,12 @@ export class GroupMetadataHandler {
   }
 
   async handleUpdate(updates: Partial<GroupMetadata>[]) {
+
+     if (!Array.isArray(updates)) {
+      logger.warn('Updates is not an array:', updates);
+      return; // Early return if updates is not an array
+    }
+    
     for (const update of updates) {
       try {
         // Skip if id is missing
