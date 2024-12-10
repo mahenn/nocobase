@@ -48,40 +48,62 @@ export class PluginWhatsappServer extends Plugin {
     this.db.on('sessions.afterCreate', async (session, options) => {
       console.log("sessions ",session.sessionId);
       const sessionId = session.sessionId;
-      await this.whatsappService.createSession({sessionId}); // Use instance method
+      //await this.whatsappService.createSession({sessionId}); // Use instance method
     });
 
-    this.app.resource({
-      name: 'whatsapp',
-      actions: whatsappActions
-    });
+    // Helper function to wrap handlers with middleware
+    const wrapWithMiddleware = (handler: Function, middlewares: Function[]) => {
+      return async (ctx: Context, next: Next) => {
+        const executeMiddleware = async (index: number) => {
+          if (index === middlewares.length) {
+            return handler(ctx, next);
+          }
+          return middlewares[index](ctx, () => executeMiddleware(index + 1));
+        };
+        return executeMiddleware(0);
+      };
+    };
 
-    //, { tag: 'whatsAppService', before: 'acl', after: 'auth' }
-    this.app.resourcer.use(whatsAppService);
-
-
-    Object.entries(chatActions).forEach(([action, handler]) =>
-      this.app.resourcer.registerAction(`chats:${action}`, handler),
+    Object.entries(sessionActions).forEach(([action, handler]) =>{
+      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
+      this.app.resourcer.registerAction(`sessions:${action}`, wrappedHandler)
+    }
     );
 
-    Object.entries(groupActions).forEach(([action, handler]) =>
-      this.app.resourcer.registerAction(`groups:${action}`, handler),
+    Object.entries(chatActions).forEach(([action, handler]) =>{
+      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
+      this.app.resourcer.registerAction(`chats:${action}`, wrappedHandler)
+    }
     );
 
-    Object.entries(sessionActions).forEach(([action, handler]) =>
-      this.app.resourcer.registerAction(`sessions:${action}`, handler),
+    Object.entries(groupActions).forEach(([action, handler]) =>{
+      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
+      this.app.resourcer.registerAction(`groups:${action}`, wrappedHandler)
+    }
     );
 
-    Object.entries(messageActions).forEach(([action, handler]) =>
-      this.app.resourcer.registerAction(`messages:${action}`, handler),
+    Object.entries(sessionActions).forEach(([action, handler]) =>{
+      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
+      this.app.resourcer.registerAction(`sessions:${action}`, wrappedHandler)
+    }
     );
 
-    Object.entries(contactActions).forEach(([action, handler]) =>
-      this.app.resourcer.registerAction(`contacts:${action}`, handler),
+    Object.entries(messageActions).forEach(([action, handler]) =>{
+      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
+      this.app.resourcer.registerAction(`messages:${action}`, wrappedHandler)
+    }
     );
 
-    Object.entries(miscActions).forEach(([action, handler]) =>
-      this.app.resourcer.registerAction(`misc:${action}`, handler),
+    Object.entries(contactActions).forEach(([action, handler]) =>{
+      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
+      this.app.resourcer.registerAction(`contacts:${action}`, wrappedHandler)
+    }
+    );
+
+    Object.entries(miscActions).forEach(([action, handler]) =>{
+      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
+      this.app.resourcer.registerAction(`misc:${action}`, wrappedHandler)
+    }
     );
 
     // // Register group actions

@@ -3,10 +3,22 @@ import { Context } from '@nocobase/actions';
 import { WhatsappService } from '../services/whatsapp';
 
 export const sessionActions = {
+
   async create(ctx: Context, next) {
     try {
-      const whatsappService = new WhatsappService();
-      const session = await whatsappService.createSession();
+      const { sessionId } = ctx.action.params;
+      const { service } = ctx.whatsapp;
+
+      //insert sessionId into session 
+      await ctx.db.getRepository('sessions').create({
+        values: {
+          sessionId,
+        },
+        filterKeys: ['sessionId'],
+      });
+
+      const session = await service.createSession({ sessionId });
+
       ctx.body = { sessionId: session.id };
     } catch (error) {
       ctx.throw(500, error.message);
@@ -16,9 +28,9 @@ export const sessionActions = {
 
   async delete(ctx: Context, next) {
     const { sessionId } = ctx.action.params;
+    const { socket, service } = ctx.whatsapp;
     try {
-      const whatsappService = new WhatsappService();
-      await whatsappService.deleteSession(sessionId);
+      await service.deleteSession(sessionId);
       ctx.body = { message: 'Session deleted successfully' };
     } catch (error) {
       ctx.throw(500, error.message);
@@ -28,9 +40,9 @@ export const sessionActions = {
 
   async status(ctx: Context, next) {
     const { sessionId } = ctx.action.params;
+    const { socket, service } = ctx.whatsapp;
     try {
-      const whatsappService = new WhatsappService();
-      const status = await whatsappService.getSessionStatus(sessionId);
+      const status = await service.getSessionStatus(sessionId);
       ctx.body = { status };
     } catch (error) {
       ctx.throw(500, error.message);
@@ -40,9 +52,9 @@ export const sessionActions = {
 
   async qr(ctx: Context, next) {
     const { sessionId } = ctx.action.params;
+    const { socket, service } = ctx.whatsapp;
     try {
-      const whatsappService = new WhatsappService();
-      const qr = await whatsappService.getQR(sessionId);
+      const qr = await service.getQR(sessionId);
       ctx.body = { qr };
     } catch (error) {
       ctx.throw(500, error.message);
@@ -52,13 +64,14 @@ export const sessionActions = {
 
   async logout(ctx: Context, next) {
     const { sessionId } = ctx.action.params;
+    const { socket, service } = ctx.whatsapp;
     try {
-      const whatsappService = new WhatsappService();
-      await whatsappService.logout(sessionId);
+      await service.deleteSession(sessionId);
       ctx.body = { message: 'Logged out successfully' };
     } catch (error) {
       ctx.throw(500, error.message);
     }
     await next();
   }
+
 };

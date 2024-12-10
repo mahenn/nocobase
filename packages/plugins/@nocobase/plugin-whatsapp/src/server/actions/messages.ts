@@ -1,20 +1,24 @@
 // src/server/actions/message.actions.ts
 import { Context } from '@nocobase/actions';
 import { WhatsappService } from '../services/whatsapp';
+import { updatePresence } from "./misc";
+import { downloadMediaMessage } from '@whiskeysockets/baileys';
+import { logger } from '../utils/logger';
 
 export const messageActions = {
   async send(ctx: Context, next) {
-    const { sessionId, jid, type = 'number', message, options } = ctx.action.params;
+    const { sessionId, jid, type = 'number', message, options } = ctx.request.body;
     const { socket, service } = ctx.whatsapp;
 
     try {
-      const validJid = await service.validJid(session, jid, type);
+      const validJid = await service.validJid(sessionId, jid, type);
+      console.log(validJid);
       if (!validJid) {
         ctx.throw(400, 'Invalid JID');
       }
 
-      await servie.updatePresence(socket, 'composing', jid);
-      const result = await scoket.sendMessage(jid, message, options);
+      await socket.sendPresenceUpdate('composing', jid);
+      const result = await socket.sendMessage(jid, message, options);
       
       ctx.body = result;
     } catch (error) {
@@ -26,8 +30,8 @@ export const messageActions = {
 
 
   async sendBulk(ctx: Context, next) {
-    const { sessionId } = ctx.action.params;
-    const messages = ctx.action.params.messages;
+    const { sessionId } = ctx.request.body;
+    const messages = ctx.request.body.messages;
     const { socket, service } = ctx.whatsapp;
 
     try {
@@ -36,8 +40,9 @@ export const messageActions = {
       const errors = [];
 
       for (const msg of messages) {
+        console.log(sessionId,msg.jid, msg.type || 'number');
         try {
-          const validJid = await service.validJid(socket, msg.jid, msg.type || 'number');
+          const validJid = await service.validJid(sessionId, msg.jid, msg.type || 'number');
           if (!validJid) {
             errors.push({ jid: msg.jid, error: 'Invalid JID' });
             continue;
@@ -47,7 +52,8 @@ export const messageActions = {
             await new Promise(resolve => setTimeout(resolve, msg.delay));
           }
 
-          await service.updatePresence(socket, 'composing', msg.jid);
+          await socket.sendPresenceUpdate('composing', msg.jid);
+
           const result = await socket.sendMessage(msg.jid, msg.message, msg.options);
           results.push({ jid: msg.jid, result });
         } catch (error) {
@@ -63,11 +69,10 @@ export const messageActions = {
   },
 
   async deleteForMe(ctx: Context, next) {
-    const { sessionId, jid, messageId } = ctx.action.params;
+    const { sessionId, jid, messageId } = ctx.request.body;
     const { socket, service } = ctx.whatsapp;
 
     try {
-      
       await socket.chatModify({ clear: { messages: [{ id: messageId, fromMe: true }] } }, jid);
       ctx.body = { message: 'Message deleted successfully' };
     } catch (error) {
@@ -77,11 +82,10 @@ export const messageActions = {
   },
 
   async deleteForAll(ctx: Context, next) {
-    const { sessionId, jid, messageId } = ctx.action.params;
+    const { sessionId, jid, messageId } = ctx.request.body;
     const { socket, service } = ctx.whatsapp;
 
     try {
-      
       await socket.sendMessage(jid, { delete: { id: messageId, fromMe: true } });
       ctx.body = { message: 'Message deleted for all' };
     } catch (error) {
@@ -92,12 +96,15 @@ export const messageActions = {
 
   async download(ctx: Context, next) {
     const { sessionId } = ctx.action.params;
-    const message = ctx.action.params.message;
+    const message = ctx.request.body.message;
+
+    console.log(message);
+
     const { socket, service } = ctx.whatsapp;
 
     try {
 
-      const media = await socket.downloadMediaMessage(message);
+      const media = await downloadMediaMessage(message);
       ctx.body = media;
     } catch (error) {
       ctx.throw(500, error.message);

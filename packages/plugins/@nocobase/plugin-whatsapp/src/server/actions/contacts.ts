@@ -42,33 +42,33 @@ export const contactActions = {
     
     const { sessionId, numbers } = ctx.action.params;
     const { socket, service } = ctx.whatsapp;
+
+    console.log(socket);
     
     try {
-      // const whatsappService = ctx.app.pm.get(Plugin).whatsappService;
-      // const session = whatsappService.getSession(sessionId).socket;
-      
+
       const results = [];
-      for (const number of numbers) {
-        try {
-          const [result] = await socket.onWhatsApp(number);
-          results.push({
-            number,
-            exists: !!result?.exists,
-            jid: result?.jid
-          });
-        } catch (error) {
-          results.push({
-            number,
-            exists: false,
-            error: error.message
-          });
-        }
+      
+      try {
+        const [result] = await socket.onWhatsApp(numbers);
+        results.push({
+          numbers,
+          exists: !!result?.exists,
+          jid: result?.jid
+        });
+      } catch (error) {
+        results.push({
+          numbers,
+          exists: false,
+          error: error.message
+        });
       }
 
       ctx.body = { results };
-    } catch (error) {
-      ctx.throw(500, error.message);
-    }
+      } catch (error) {
+        ctx.throw(500, error.message);
+      }
+
     await next();
   },
 
@@ -85,6 +85,22 @@ export const contactActions = {
     await next();
   },
 
+  async listBlocked(ctx: Context, next) {
+    const { sessionId, jid } = ctx.action.params;
+    const { socket, service } = ctx.whatsapp;
+
+    try {
+      const data = await socket.fetchBlocklist();
+      ctx.body = { data };
+    } catch (error) {
+      ctx.throw(500, error.message);
+    }
+    await next();
+  },
+
+
+
+
   async unblock(ctx: Context, next) {
     const { sessionId, jid } = ctx.action.params;
     const { socket, service } = ctx.whatsapp;
@@ -95,6 +111,25 @@ export const contactActions = {
     } catch (error) {
       ctx.throw(500, error.message);
     }
+    await next();
+  },
+
+  async photo(ctx: Context, next) {
+    const { sessionId, jid, type = 'number' } = ctx.action.params;
+    const { socket, service } = ctx.whatsapp;
+
+    try {
+      const exists = await service.jidExists(sessionId, jid, type);
+      if (!exists) {
+        ctx.throw(400, 'JID does not exist');
+      }
+
+      const url = await socket.profilePictureUrl(jid, 'image');
+      ctx.body = { url };
+    } catch (error) {
+      ctx.throw(500, error.message);
+    }
+
     await next();
   }
 };

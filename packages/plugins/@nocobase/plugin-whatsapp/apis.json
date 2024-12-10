@@ -1,0 +1,272 @@
+{
+  "info": {
+    "name": "NocoBase WhatsApp Plugin",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Sessions",
+      "item": [
+        {
+          "name": "Create Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/sessions:create",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/sessions:delete",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id"
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Session Status",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/whatsapp/sessions:status",
+            "query": {
+              "sessionId": "your-session-id"
+            }
+          }
+        },
+        {
+          "name": "Get QR Code",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/whatsapp/sessions:qr",
+            "query": {
+              "sessionId": "your-session-id"
+            }
+          }
+        },
+        {
+          "name": "Logout Session",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/sessions:logout",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id"
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Messages",
+      "item": [
+        {
+          "name": "Send Message",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/messages:send",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id",
+                "jid": "recipient-jid",
+                "content": "message-content"
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Send Bulk Messages",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/messages:sendBulk",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id",
+                "messages": [
+                  {
+                    "jid": "recipient-jid",
+                    "content": "message-content"
+                  }
+                ]
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Message (For Me)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/messages:deleteForMe",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id",
+                "messageId": "message-id"
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Contacts",
+      "item": [
+        {
+          "name": "List Contacts",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/whatsapp/contacts:list",
+            "query": {
+              "sessionId": "your-session-id",
+              "cursor": "optional-cursor",
+              "limit": "5",
+              "search": "optional-search-term"
+            }
+          }
+        },
+        {
+          "name": "Check Contact",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/contacts:check",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id",
+                "numbers": ["phone-number-1", "phone-number-2"]
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Groups",
+      "item": [
+        {
+          "name": "List Groups",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/whatsapp/groups:list",
+            "query": {
+              "sessionId": "your-session-id",
+              "cursor": "optional-cursor",
+              "limit": "25",
+              "search": "optional-search-term"
+            }
+          }
+        },
+        {
+          "name": "Create Group",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/groups:create",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id",
+                "subject": "group-name",
+                "participants": ["participant-jid-1", "participant-jid-2"]
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Misc",
+      "item": [
+        {
+          "name": "Get Photo URL",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/whatsapp/misc:getPhotoURL",
+            "query": {
+              "sessionId": "your-session-id",
+              "jid": "contact-jid",
+              "type": "number"
+            }
+          }
+        },
+        {
+          "name": "Update Presence",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/whatsapp/misc:updatePresence",
+            "body": {
+              "mode": "raw",
+              "raw": {
+                "sessionId": "your-session-id",
+                "jid": "contact-jid",
+                "presence": "presence-status",
+                "type": "number"
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:13005"
+    }
+  ]
+}

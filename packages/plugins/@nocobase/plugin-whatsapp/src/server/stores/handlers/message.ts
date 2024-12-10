@@ -2,6 +2,8 @@
 
 import { BaileysEventEmitter, WAMessage } from '@whiskeysockets/baileys';
 import { logger } from '../../utils/logger';
+import { downloadMediaMessage } from '@whiskeysockets/baileys'
+import { writeFile } from 'fs/promises'
 
 export class MessageHandler {
   private listening = false;
@@ -109,6 +111,7 @@ export class MessageHandler {
           //   sessionId: this.sessionId
           // }
         });
+
       }
 
       //   await this.repository.create({
@@ -150,6 +153,35 @@ export class MessageHandler {
           // }
         });
       }
+
+
+      for (const msg of data.messages)
+      {
+        console.log(msg,Object.keys (msg.message)['0']);
+
+        const messageType = Object.keys (msg.message)[0]// get what type of message it is -- text, image, video
+        // if the message is an image
+        //below codes working we need to now download all images, video & audio
+        // if (messageType === 'imageMessage') {
+        //     // download the message
+        //     const buffer = await downloadMediaMessage(
+        //         msg,
+        //         'buffer',
+        //         { },
+        //         { 
+        //             logger,
+        //             // pass this so that baileys can request a reupload of media
+        //             // that has been deleted
+        //             //reuploadRequest: sock.updateMediaMessage
+        //         }
+        //     )
+        //     // save to file
+        //     await writeFile('./my-download.jpeg', buffer)
+        // }
+
+      }
+
+
        logger.info(`Upserted ${processedMessages.length} messages`);
     } catch (error) {
       logger.error('Message upsert error:', error);

@@ -37,7 +37,7 @@ export const chatActions = {
     await next();
   },
 
-  async find(ctx: Context, next) {
+  async messages(ctx: Context, next) {
     const { sessionId, jid } = ctx.action.params;
 
     console.log(sessionId, jid)

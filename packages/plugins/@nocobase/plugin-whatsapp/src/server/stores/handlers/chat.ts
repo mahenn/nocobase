@@ -103,12 +103,12 @@ export class ChatHandler {
       try {
         if (!update.id) continue;
 
-        // const existingChat = await this.repository.findOne({
-        //   filter: { 
-        //     id: update.id,
-        //     sessionId: this.sessionId 
-        //   }
-        // });
+        const existingChat = await this.repository.findOne({
+          filter: { 
+            id: update.id,
+            sessionId: this.sessionId 
+          }
+        });
 
         // if (!existingChat) {
         //   logger.info('Chat not found, skipping update');

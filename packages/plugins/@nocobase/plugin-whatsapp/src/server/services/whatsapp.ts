@@ -14,7 +14,7 @@ import { toDataURL } from 'qrcode';
 import { Store } from '../stores/store';
 import { useSession } from '../stores/session';
 import { logger } from '../utils/logger';
-import { Gateway } from '../../../../../core/server/src/gateway/index';
+import { Gateway } from '@nocobase/server/src/gateway/index';
 
 // Define WAStatus enum
 export enum WAStatus {
@@ -52,7 +52,7 @@ export class WhatsAppService {
   constructor(private readonly app: any) {
     this.sessions = new Map();
     this.retries = new Map();
-    this.gateway = this.app.getPlugin('users').gateway;
+    this.gateway = Gateway.getInstance();
   }
 
   async initialize() {
@@ -104,10 +104,10 @@ export class WhatsAppService {
   }
 
   async createSession(options: CreateSessionOptions) {
+
     const { sessionId, readIncomingMessages = false, socketConfig, SSE = false } = options;
 
     console.log("session Id is ",sessionId);
-
     
     // const existingSession = await this.app.db.getRepository('sessions').findOne({
     //     filter: { sessionId }
@@ -125,13 +125,11 @@ export class WhatsAppService {
       //return this.sessions.get(sessionId);
     }
 
-
     const { state, saveCreds } = await useMultiFileAuthState(`./sessions/${sessionId}`);
 
     const { version, isLatest } = await fetchLatestBaileysVersion();
     console.log(`Using WhatsApp version: ${version.join('.')}, is latest: ${isLatest}`);
     
-
     const socket = makeWASocket({
       version,
       printQRInTerminal: true,
@@ -150,7 +148,6 @@ export class WhatsAppService {
       // Add retry settings
       retryRequestDelayMs: 2000
     });
-
 
     const store = new Store(sessionId, socket.ev, this.app.db);
 
@@ -325,12 +322,15 @@ export class WhatsAppService {
   }
 
   async validJid(sessionId: string, jid: string, type: 'group' | 'number' = 'number') {
+
     const session = this.sessions.get(sessionId);
+
     if(!session) return null;
 
     try {
       if (type === 'number') {
         const [result] = await session.socket.onWhatsApp(jid);
+        
         return result?.exists ? result.jid : null;
       }
       const groupMeta = await session.socket.groupMetadata(jid);
