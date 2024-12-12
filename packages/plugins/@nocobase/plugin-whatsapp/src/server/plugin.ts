@@ -106,6 +106,8 @@ export class PluginWhatsappServer extends Plugin {
     }
     );
 
+
+
     // // Register group actions
     // this.app.resource({
     //   name: 'whatsapp.groups',

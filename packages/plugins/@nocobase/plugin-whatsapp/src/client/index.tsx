@@ -7,9 +7,10 @@
  * For more information, please refer to: https://www.nocobase.com/agreement.
  */
 
-import { Plugin } from '@nocobase/client';
+import { Plugin, SchemaInitializerItemType } from '@nocobase/client';
 import { tval } from '@nocobase/utils/client';
 import  {PluginWhatsappSession}  from './SessionsManagement';
+import { WhatsAppBlockInitializer } from './WhatsAppBlockInitializer';
 
 export class PluginWhatsappClient extends Plugin {
   async afterAdd() {
@@ -20,6 +21,10 @@ export class PluginWhatsappClient extends Plugin {
 
   // You can get and modify the app instance here
   async load() {
+
+     this.app.addComponents({
+      WhatsAppBlockInitializer
+    });
    // console.log(this.app);
     // this.app.addComponents({})
     // this.app.addScopes({})
@@ -27,7 +32,18 @@ export class PluginWhatsappClient extends Plugin {
     // this.app.addProviders()
     // this.app.router.add()
 
-     this.app.pluginSettingsManager.add('whatsapp-session', {
+
+    // Add to block initializers
+    const blockInitializers = this.app.schemaInitializerManager.get('page:addBlock');
+    blockInitializers?.add('other.whatsapp', {
+      title: '{{t("WhatsApp")}}',
+      Component: 'WhatsAppBlockInitializer', // Reference as string after registration
+      icon: 'MessageOutlined',
+      group: 'other'
+    });
+
+
+    this.app.pluginSettingsManager.add('whatsapp-session', {
       title: tval('Whatsapp', { ns: 'Whatsapp Sessions' }),
       icon: 'ClusterOutlined',
       Component: PluginWhatsappSession,
