@@ -26,7 +26,7 @@ import {
 
 
 export const whatsappSettings = new SchemaSettings ({
-  name: 'WhatsappSettings',
+  name: 'whatsappsettings',
   items: [
     {
       name: 'title',

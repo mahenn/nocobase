@@ -20,7 +20,7 @@ export function useWhatsAppProps(): WhatsAppProps {
 } 
 
 export function getWhatsAppSchema({ dataSource = 'main', collection }) {
-  
+
   return {
     type: 'void',
     'x-decorator': 'DataBlockProvider',
@@ -30,12 +30,12 @@ export function getWhatsAppSchema({ dataSource = 'main', collection }) {
       collection,
       action: 'list',
     },
-    'x-settings': 'WhatsappSettings',
+    'x-settings': 'blockSettings:table',
     'x-component': 'CardItem',
     properties: {
       whatsapp: {
         type: 'void',
-        'x-component': "WhatsappSettings",
+        'x-component': "PluginWhatsappSession",
         'x-use-component-props': 'useWhatsAppProps',
       }
     }
