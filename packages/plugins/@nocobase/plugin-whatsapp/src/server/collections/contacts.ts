@@ -12,6 +12,7 @@ export default {
   name: 'contacts',
   createdBy: true,
   updatedBy: true,
+  shared: true,
   fields: [
     {
       type: 'bigInt',

@@ -1,15 +1,6 @@
-/**
- * This file is part of the NocoBase (R) project.
- * Copyright (c) 2020-2024 NocoBase Co., Ltd.
- * Authors: NocoBase Team.
- *
- * This project is dual-licensed under AGPL-3.0 and NocoBase Commercial License.
- * For more information, please refer to: https://www.nocobase.com/agreement.
- */
-
-// @ts-ignore
-import pkg from './../../package.json';
+// src/client/locale.ts
 import { useApp } from '@nocobase/client';
+import pkg from '../../package.json';
 
 export function useT() {
   const app = useApp();

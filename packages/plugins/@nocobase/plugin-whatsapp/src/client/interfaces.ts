@@ -1,14 +1,17 @@
 // src/client/interfaces.ts
-export interface WhatsAppBlockProps {
-  sessionId?: string;
-  collection: string;
-  association?: string;
-  // Add other props as needed
+export interface WhatsAppProps {
+  collectionName?: string;
+  data?: any[];
+  loading?: boolean;
+  block?: {
+    title?: string;
+  };
 }
 
-export interface WhatsAppMessage {
-  id: string;
-  content: string;
-  timestamp: Date;
-  // Add other message properties
+export interface BlockAssociationContext {
+  block: {
+    title?: string;
+  };
+  updateBlock: (data: any) => void;
+  removeBlock: () => void;
 }

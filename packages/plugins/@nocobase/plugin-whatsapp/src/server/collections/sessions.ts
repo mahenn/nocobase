@@ -12,6 +12,7 @@ export default {
   name: 'sessions',
   createdBy: true,
   updatedBy: true,
+  shared: true,
   fields: [
     {
       type: 'bigInt',

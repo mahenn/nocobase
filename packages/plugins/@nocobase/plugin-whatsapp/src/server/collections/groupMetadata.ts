@@ -3,6 +3,7 @@ export default {
   name: 'groupMetadata',
   createdBy: true,
   updatedBy: true,
+  shared: true,
   fields: [
     {
       type: 'bigInt',
