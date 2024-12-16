@@ -1,7 +1,14 @@
 // /packages/plugins/@nocobase/plugin-whatsapp/src/server/stores/handlers/groupMetadata.ts
 
-import { BaileysEventEmitter, GroupMetadata } from '@whiskeysockets/baileys';
+import { BaileysEventEmitter } from '@whiskeysockets/baileys';
+import { GroupMetadata, BaileysEventMap } from '@whiskeysockets/baileys';
+
 import { logger } from '../../utils/logger';
+
+interface ExtendedGroupMetadata extends GroupMetadata {
+  announceVersionId?: any;
+  support?: any;
+}
 
 export class GroupMetadataHandler {
   private listening = false;
@@ -19,7 +26,7 @@ export class GroupMetadataHandler {
     this.handleUpsert = this.handleUpsert.bind(this);
   }
 
-  private processGroupMetadata(metadata: GroupMetadata) {
+  private processGroupMetadata(metadata: ExtendedGroupMetadata) {
     return {
       sessionId: this.sessionId,
       id: metadata.id,
@@ -30,30 +37,31 @@ export class GroupMetadataHandler {
       desc: metadata.desc || null,
       descId: metadata.descId || null,
       descOwner: metadata.descOwner || null,
-      descTime: metadata.descTime,
+      //descTime: metadata.descTime,
       creation: metadata.creation || null,
-      participants: group.participants ? JSON.stringify(group.participants) : null,
+      //participants: group.participants ? JSON.stringify(group.participants) : null,
       announceVersionId: metadata.announceVersionId,
       announce: metadata.announce || false,
-      noFrequentlyForwarded: metadata.noFrequentlyForwarded,
+      //noFrequentlyForwarded: metadata.noFrequentlyForwarded,
       ephemeralDuration: metadata.ephemeralDuration || null,
       memberAddMode: metadata.memberAddMode,
       size: metadata.size || null,
       support: group.support ? JSON.stringify(group.support) : null,
-      suspended: metadata.suspended || false,
-      terminated: metadata.terminated || false,
+      //suspended: metadata.suspended || false,
+      //terminated: metadata.terminated || false,
       restrict: metadata.restrict || false,
-      defaultSubgroup: metadata.defaultSubgroup,
-      parentGroup: metadata.parentGroup,
-      isParentGroup: metadata.isParentGroup || false,
-      isDefaultSubgroup: metadata.isDefaultSubgroup || false,
-      notificationsEnabled: metadata.notificationsEnabled,
-      lastActivityTimestamp: metadata.lastActivityTimestamp,
-      lastSeenActivityTimestamp: metadata.lastSeenActivityTimestamp
+      //defaultSubgroup: metadata.defaultSubgroup,
+      //parentGroup: metadata.parentGroup,
+      //isParentGroup: metadata.isParentGroup || false,
+      //isDefaultSubgroup: metadata.isDefaultSubgroup || false,
+      //notificationsEnabled: metadata.notificationsEnabled,
+      //lastActivityTimestamp: metadata.lastActivityTimestamp,
+      //lastSeenActivityTimestamp: metadata.lastSeenActivityTimestamp
     };
   }
 
-  async handleSet({ groupMetadata }: { groupMetadata: { [key: string]: GroupMetadata } }) {
+  async handleSet(args: BaileysEventMap['messaging-history.set']) {
+    const { groupMetadata } = args;
     try {
       //await this.db.sequelize.transaction(async (transaction) => {
 
@@ -133,17 +141,17 @@ export class GroupMetadataHandler {
           ...(update.ephemeralDuration !== undefined && { ephemeralDuration: update.ephemeralDuration }),
           ...(update.inviteCode !== undefined && { inviteCode: update.inviteCode }),
           ...(update.descId !== undefined && { descId: update.descId }),
-          ...(update.descTime !== undefined && { descTime: update.descTime }),
-          ...(update.groupInviteLink !== undefined && { groupInviteLink: update.groupInviteLink }),
-          ...(update.isParentGroup !== undefined && { isParentGroup: update.isParentGroup }),
+         // ...(update.descTime !== undefined && { descTime: update.descTime }),
+         // ...(update.groupInviteLink !== undefined && { groupInviteLink: update.groupInviteLink }),
+         // ...(update.isParentGroup !== undefined && { isParentGroup: update.isParentGroup }),
           ...(update.memberAddMode !== undefined && { memberAddMode: JSON.stringify(update.memberAddMode) }),
-          ...(update.numSubgroups !== undefined && { numSubgroups: update.numSubgroups }),
-          ...(update.parentGroupId !== undefined && { parentGroupId: update.parentGroupId }),
-          ...(update.support !== undefined && { support: JSON.stringify(update.support) }),
-          ...(update.suspended !== undefined && { suspended: update.suspended }),
-          ...(update.terminatedUserJids !== undefined && { 
-            terminatedUserJids: JSON.stringify(update.terminatedUserJids) 
-          })
+         // ...(update.numSubgroups !== undefined && { numSubgroups: update.numSubgroups }),
+         // ...(update.parentGroupId !== undefined && { parentGroupId: update.parentGroupId }),
+         // ...(update.support !== undefined && { support: JSON.stringify(update.support) }),
+         // ...(update.suspended !== undefined && { suspended: update.suspended }),
+         // ...(update.terminatedUserJids !== undefined && { 
+         //   terminatedUserJids: JSON.stringify(update.terminatedUserJids) 
+         // })
         };
 
         // Only proceed if there are actual updates

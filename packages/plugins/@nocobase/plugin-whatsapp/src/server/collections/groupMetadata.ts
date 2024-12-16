@@ -1,5 +1,7 @@
+import { defineCollection } from '@nocobase/database';
+
 // Collection schema for group metadata
-export default {
+export default defineCollection({
   name: 'groupMetadata',
   createdBy: true,
   updatedBy: true,
@@ -139,4 +141,4 @@ export default {
       fields: ['sessionId'],
     },
   ],
-};
+} );

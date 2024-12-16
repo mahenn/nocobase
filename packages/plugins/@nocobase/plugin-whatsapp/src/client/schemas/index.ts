@@ -1,6 +1,7 @@
 // src/client/schema/index.ts
 import { useCollection, useDataBlockRequest } from "@nocobase/client";
 import { whatsappSettings } from "../settings";
+import { schema,sessionCollection } from './sessions';
 
 export interface WhatsAppProps {
   collectionName: string;

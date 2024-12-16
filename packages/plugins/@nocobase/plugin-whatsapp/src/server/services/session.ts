@@ -7,13 +7,16 @@
  * For more information, please refer to: https://www.nocobase.com/agreement.
  */
 
-import { Service } from '@nocobase/server';
 import { Repository } from '@nocobase/database';
+import { BufferJSON, initAuthCreds } from '@whiskeysockets/baileys';
+import { logger } from '../utils/logger';
 
 interface SessionData {
   sessionId: string;
   id: string;
   data: string;
+  status?: string;
+  lastStatusUpdate?: Date;
 }
 
 export class SessionService {
@@ -21,7 +24,8 @@ export class SessionService {
   private repository: Repository;
   private retries: Map<string, number>;
   private readonly MAX_RETRIES = 5;
-
+  private readonly app = '';
+  
   constructor(app: any) {
     this.app = app;
     this.retries = new Map();
@@ -59,11 +63,11 @@ export class SessionService {
     }
   }
 
-  async updateSessionStatus(sessionId: string, status: WAStatus) {
+  async updateSessionStatus(sessionId: string, status) {
     return await this.update(sessionId, {
       status,
       lastStatusUpdate: new Date()
-    });
+    } as Partial<SessionData>);
   }
 
   /* need to check if below codes require*/

@@ -1,6 +1,6 @@
 // src/server/actions/contact.actions.ts
 import { Context } from '@nocobase/actions';
-import { WhatsappService } from '../services/whatsapp';
+import { WhatsAppService } from '../services/whatsapp';
 import Plugin from '..';
 
 export const contactActions = {
@@ -23,9 +23,9 @@ export const contactActions = {
 
       const contacts = await ctx.db.getRepository('contacts').find({
         filter: whereConditions,
-        take: Number(limit),
-        skip: cursor ? 1 : 0,
-        cursor: cursor ? { id: cursor } : undefined
+        limit: Number(limit),
+        offset: cursor ? 1 : 0,
+        //offset: cursor ? { id: cursor } : undefined
       });
 
       ctx.body = {

@@ -1,6 +1,4 @@
 // src/client/settings/index.ts
-import { SchemaSettingsBlockType } from '@nocobase/client';
-import { BlockNameLowercase } from '../constants';
 import { ISchema, useField, useFieldSchema } from '@formily/react';
 import {
   FilterBlockType,

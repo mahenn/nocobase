@@ -5,7 +5,10 @@ import Plugin from '..';
 
 export const whatsAppService = async (ctx: Context, next: Next) => {
 
-  const sessionId = ctx.action.params?.sessionId || ctx.request.body?.sessionId;
+  const body = ctx.request.body as { sessionId?: string };
+  const params = ctx.action.params as { sessionId?: string };
+  const sessionId = params?.sessionId || body?.sessionId;
+  //const sessionId = ctx.action.params?.sessionId || ctx.request.body?.sessionId;
   
   if (!sessionId) {
     ctx.throw(400, 'Middleware err: Session ID is required');

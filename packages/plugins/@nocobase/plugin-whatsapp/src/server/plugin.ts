@@ -10,7 +10,8 @@
 import { Plugin } from '@nocobase/server';
 import path from 'path';
 import { WhatsAppService } from './services/whatsapp';
-import { whatsappActions } from './actions/sessions';
+import { Collection, RelationField, Transaction } from '@nocobase/database';
+
 import { 
   sessionActions, 
   messageActions, 
@@ -21,6 +22,7 @@ import {
 } from './actions';
 import { whatsAppService } from './middlewares/whatsapp';
 
+import { Context,Next } from '@nocobase/actions';
 
 
 export class PluginWhatsappServer extends Plugin {
@@ -35,9 +37,22 @@ export class PluginWhatsappServer extends Plugin {
       directory: path.resolve(__dirname, 'collections'),
     });
 
+    await this.db.sync();
+    // Register collections in collections table
+    const repo = this.db.getRepository<any>('collections');
+    console.log("beforeLoad is called",repo);
+    if (repo) {
+      await repo.db2cm('chats');
+      await repo.db2cm('messages');
+      await repo.db2cm('sessions');
+      await repo.db2cm('contacts');
+    }
+
   }
 
   async load() {
+
+
   
     this.whatsappService = new WhatsAppService(this.app);
     
@@ -171,7 +186,26 @@ export class PluginWhatsappServer extends Plugin {
     this.app.acl.allow('sessions', '*');
   }
 
-  async install() {}
+  async install() {
+
+
+    // Import collections first
+    await this.db.import({
+      directory: path.resolve(__dirname, 'collections'),
+    });
+
+
+
+    // Register collections in collections table
+    const repo = this.db.getRepository<any>('collections');
+    console.log("installllllllllllllllll is called",repo);
+
+    if (repo) {
+      await repo.db2cm('chats');
+      await repo.db2cm('messages');
+    }
+
+  }
 
   async afterEnable() {}
 

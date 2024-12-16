@@ -1,6 +1,6 @@
 // src/server/actions/misc.actions.ts
 import { Context } from '@nocobase/actions';
-import { WhatsappService } from '../services/whatsapp';
+
 
 export const miscActions = {
   async getPhotoURL(ctx: Context, next) {

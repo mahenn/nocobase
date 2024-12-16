@@ -1,6 +1,6 @@
 // src/server/actions/session.actions.ts
 import { Context } from '@nocobase/actions';
-import { WhatsappService } from '../services/whatsapp';
+import { WhatsAppService } from '../services/whatsapp';
 
 export const sessionActions = {
 

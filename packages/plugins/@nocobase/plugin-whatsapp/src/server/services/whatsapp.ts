@@ -92,15 +92,15 @@ export class WhatsAppService {
 
   private broadcastToClients(event: string, data: any) {
     return;
-    const wsServer = this.gateway.wsServer.wss;
-    wsServer.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({
-          type: event,
-          payload: data
-        }));
-      }
-    });
+    // const wsServer = this.gateway.wsServer.wss;
+    // wsServer.clients.forEach(client => {
+    //   if (client.readyState === WebSocket.OPEN) {
+    //     client.send(JSON.stringify({
+    //       type: event,
+    //       payload: data
+    //     }));
+    //   }
+    // });
   }
 
   async createSession(options: CreateSessionOptions) {
@@ -139,7 +139,7 @@ export class WhatsAppService {
       ...socketConfig,
       auth: {
         creds: state?.creds || {},
-        keys: makeCacheableSignalKeyStore(state?.keys || {}, logger),
+        //keys: makeCacheableSignalKeyStore(state?.keys || {}, logger),
       },
       logger,
       shouldIgnoreJid: (jid) => isJidBroadcast(jid),

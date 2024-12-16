@@ -1,13 +1,41 @@
 // src/server/actions/message.actions.ts
 import { Context } from '@nocobase/actions';
-import { WhatsappService } from '../services/whatsapp';
-import { updatePresence } from "./misc";
+import { WhatsAppService } from '../services/whatsapp';
 import { downloadMediaMessage } from '@whiskeysockets/baileys';
 import { logger } from '../utils/logger';
 
+// Define interfaces for request bodies
+interface SendMessageRequest {
+  sessionId: string;
+  jid: string;
+  type?: 'number' | 'group';
+  message: any;
+  options?: any;
+}
+
+interface BulkMessageRequest {
+  sessionId: string;
+  messages: Array<{
+    jid: string;
+    type?: 'number' | 'group';
+    message: any;
+    options?: any;
+    delay?: number;
+  }>;
+}
+
+interface DeleteMessageRequest {
+  sessionId: string;
+  jid: string;
+  messageId: string;
+}
+
+
 export const messageActions = {
   async send(ctx: Context, next) {
-    const { sessionId, jid, type = 'number', message, options } = ctx.request.body;
+    const body = ctx.request.body as SendMessageRequest;
+    const { sessionId, jid, type = 'number', message, options } = body;
+    
     const { socket, service } = ctx.whatsapp;
 
     try {
@@ -30,8 +58,9 @@ export const messageActions = {
 
 
   async sendBulk(ctx: Context, next) {
-    const { sessionId } = ctx.request.body;
-    const messages = ctx.request.body.messages;
+    const body = ctx.request.body as BulkMessageRequest;
+    const { sessionId } = body;
+    const messages = body.messages;
     const { socket, service } = ctx.whatsapp;
 
     try {
@@ -69,7 +98,8 @@ export const messageActions = {
   },
 
   async deleteForMe(ctx: Context, next) {
-    const { sessionId, jid, messageId } = ctx.request.body;
+    const body = ctx.request.body as DeleteMessageRequest;
+    const { sessionId, jid, messageId } = body;
     const { socket, service } = ctx.whatsapp;
 
     try {
@@ -82,7 +112,8 @@ export const messageActions = {
   },
 
   async deleteForAll(ctx: Context, next) {
-    const { sessionId, jid, messageId } = ctx.request.body;
+    const body = ctx.request.body as DeleteMessageRequest;
+    const { sessionId, jid, messageId } = body;
     const { socket, service } = ctx.whatsapp;
 
     try {
@@ -96,7 +127,8 @@ export const messageActions = {
 
   async download(ctx: Context, next) {
     const { sessionId } = ctx.action.params;
-    const message = ctx.request.body.message;
+    const body = ctx.request.body as SendMessageRequest;
+    const message = body.message;
 
     console.log(message);
 
@@ -104,7 +136,7 @@ export const messageActions = {
 
     try {
 
-      const media = await downloadMediaMessage(message);
+      const media = await downloadMediaMessage(message,'buffer');
       ctx.body = media;
     } catch (error) {
       ctx.throw(500, error.message);

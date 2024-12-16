@@ -12,6 +12,6 @@ import { createLogger } from '@nocobase/logger';
 export const logger = createLogger({
   name: 'plugin-whatsapp',
   match: 'whatsapp*',
-  filename: 'whatsapp', // Add this line to specify the filename
-  transports: ['console'], // Specify to use only console transport
+  filename: 'whatsapp',
+  transports: ['console'] as const
 });

@@ -5,6 +5,14 @@ import { logger } from '../../utils/logger';
 import { downloadMediaMessage } from '@whiskeysockets/baileys'
 import { writeFile } from 'fs/promises'
 
+
+interface ExtendedWAMessage extends WAMessage {
+  mediaKeyTimestamp?: any;
+  mediaEncSha256?: any;
+  serverToken?: any;
+  viewOnceMessage?: any;
+}
+
 export class MessageHandler {
   private listening = false;
   private repository: any;
@@ -22,7 +30,7 @@ export class MessageHandler {
     this.handleDelete = this.handleDelete.bind(this);
   }
 
-  private processMessage(msg: WAMessage) {
+  private processMessage(msg: ExtendedWAMessage) {
     // Extract basic message info
     const baseMessage = {
       sessionId: this.sessionId,
@@ -83,7 +91,8 @@ export class MessageHandler {
     };
   }
 
-  async handleSet({ messages, isLatest }: { messages: WAMessage[], isLatest: boolean }) {
+  async handleSet(args: BaileysEventMap['messaging-history.set']) {
+    const { messages, isLatest } = args;
     console.log("handle set ",messages);
     try {
 
