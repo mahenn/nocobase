@@ -1,0 +1,19 @@
+2024/12/18-11:43:39.566 8903 Reusing MANIFEST /Users/harshil/Development/mynocobase/wwebjs_auth/session-phone-123/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2024/12/18-11:43:39.566 8903 Recovering log #93
+2024/12/18-11:43:39.573 8903 Reusing old log /Users/harshil/Development/mynocobase/wwebjs_auth/session-phone-123/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/000093.log 
+2024/12/18-11:43:40.778 8903 Level-0 table #101: started
+2024/12/18-11:43:40.783 8903 Level-0 table #101: 107245 bytes OK
+2024/12/18-11:43:40.785 8903 Delete type=0 #93
+2024/12/18-11:43:40.789 f203 Manual compaction at level-0 from '\x00(\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00)\x00\x00\x00' @ 0 : 0; will stop at (end)
+2024/12/18-11:43:41.510 8a03 Compacting 1@1 + 4@2 files
+2024/12/18-11:43:41.536 8a03 Generated table #102@1: 35646 keys, 2208510 bytes
+2024/12/18-11:43:41.555 8a03 Generated table #103@1: 12475 keys, 2162450 bytes
+2024/12/18-11:43:41.588 8a03 Generated table #104@1: 82870 keys, 2230616 bytes
+2024/12/18-11:43:41.596 8a03 Generated table #105@1: 20027 keys, 492028 bytes
+2024/12/18-11:43:41.596 8a03 Compacted 1@1 + 4@2 files => 7093604 bytes
+2024/12/18-11:43:41.598 8a03 compacted to: files[ 0 0 4 0 0 0 0 ]
+2024/12/18-11:43:41.598 8a03 Delete type=2 #101
+2024/12/18-11:43:41.598 8a03 Delete type=2 #98
+2024/12/18-11:43:41.598 8a03 Delete type=2 #95
+2024/12/18-11:43:41.598 8a03 Delete type=2 #97
+2024/12/18-11:43:41.598 8a03 Delete type=2 #96

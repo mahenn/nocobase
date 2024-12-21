@@ -33,4 +33,6 @@ export const app = new Application({
   devDynamicImport,
 });
 
+window.app = app;
+
 export default app.getRootComponent();

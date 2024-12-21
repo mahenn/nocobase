@@ -1,0 +1,20 @@
+{
+  "name": "@nocobase/plugin-whatsappjs",
+  "version": "1.3.27-beta",
+  "main": "lib/server/index.js",
+  "displayName": "Whatsapp webjs",
+  "description": "Whatsapp Layer for CRM",
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "fs-extra": "^11.2.0",
+    "puppeteer": "^23.5.1",
+    "qrcode": "^1.5.4",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.26.0"
+  },
+  "peerDependencies": {
+    "@nocobase/client": "1.x",
+    "@nocobase/server": "1.x",
+    "@nocobase/test": "1.x"
+  }
+}

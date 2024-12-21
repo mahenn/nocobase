@@ -15,7 +15,7 @@ import  {WhatsAppBlockInitializer}  from './WhatsAppBlockInitializer';
 import { Whatsapp } from './component';
 import { whatsappInitializerItem   } from './initializers';
 import { useWhatsAppProps } from './schemas';
-import { whatsappSettings } from './settings';
+//import { whatsappSettings } from './settings';
 
 export class PluginWhatsappClient extends Plugin {
   async afterAdd() {
@@ -26,9 +26,9 @@ export class PluginWhatsappClient extends Plugin {
 
   async load() {
 
-     this.app.addComponents({ PluginWhatsappSession });
-    // this.app.addComponents({ WhatsAppBlockInitializer });
-     this.app.addScopes({ useWhatsAppProps });
+    this.app.addComponents({ PluginWhatsappSession });
+    this.app.addComponents({ WhatsAppBlockInitializer });
+    this.app.addScopes({ useWhatsAppProps });
 
 
     // const blockInitializers = this.app.schemaInitializerManager.get('page:addBlock');
@@ -45,11 +45,11 @@ export class PluginWhatsappClient extends Plugin {
     
     //this.app.schemaSettingsManager.add(whatsappSettings);
     
-    this.app.pluginSettingsManager.add('whatsapp-session', {
-      title: tval('Whatsapp', { ns: 'Whatsapp Sessions' }),
-      icon: 'ClusterOutlined',
-      Component: PluginWhatsappSession,
-    })
+    // this.app.pluginSettingsManager.add('whatsapp-session', {
+    //   title: tval('Whatsapp Bro', { ns: 'Whatsapp Session' }),
+    //   icon: 'ClusterOutlined',
+    //   Component: PluginWhatsappSession,
+    // })
     
 
   }

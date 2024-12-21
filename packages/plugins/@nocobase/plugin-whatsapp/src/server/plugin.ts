@@ -37,23 +37,10 @@ export class PluginWhatsappServer extends Plugin {
       directory: path.resolve(__dirname, 'collections'),
     });
 
-    await this.db.sync();
-    // Register collections in collections table
-    const repo = this.db.getRepository<any>('collections');
-    console.log("beforeLoad is called",repo);
-    if (repo) {
-      await repo.db2cm('chats');
-      await repo.db2cm('messages');
-      await repo.db2cm('sessions');
-      await repo.db2cm('contacts');
-    }
-
   }
 
   async load() {
 
-
-  
     this.whatsappService = new WhatsAppService(this.app);
     
     //Initialize saved sessions
@@ -97,12 +84,6 @@ export class PluginWhatsappServer extends Plugin {
     }
     );
 
-    Object.entries(sessionActions).forEach(([action, handler]) =>{
-      const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
-      this.app.resourcer.registerAction(`sessions:${action}`, wrappedHandler)
-    }
-    );
-
     Object.entries(messageActions).forEach(([action, handler]) =>{
       const wrappedHandler = wrapWithMiddleware(handler, [whatsAppService]);
       this.app.resourcer.registerAction(`messages:${action}`, wrappedHandler)
@@ -120,7 +101,6 @@ export class PluginWhatsappServer extends Plugin {
       this.app.resourcer.registerAction(`misc:${action}`, wrappedHandler)
     }
     );
-
 
 
     // // Register group actions
@@ -188,21 +168,21 @@ export class PluginWhatsappServer extends Plugin {
 
   async install() {
 
+    await this.db.sync();
 
     // Import collections first
     await this.db.import({
       directory: path.resolve(__dirname, 'collections'),
     });
 
-
-
     // Register collections in collections table
     const repo = this.db.getRepository<any>('collections');
-    console.log("installllllllllllllllll is called",repo);
-
+    
     if (repo) {
       await repo.db2cm('chats');
       await repo.db2cm('messages');
+      await repo.db2cm('sessions');
+      await repo.db2cm('contacts');
     }
 
   }

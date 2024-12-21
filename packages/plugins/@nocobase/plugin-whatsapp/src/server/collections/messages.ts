@@ -11,6 +11,7 @@ import { defineCollection } from '@nocobase/database';
 // plugins/whatsapp/src/collections/messages.ts
 export default defineCollection({
   name: 'messages',
+  title: '{{t("Messages")}}',
   createdBy: true,
   updatedBy: true,
   shared: true,

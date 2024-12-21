@@ -11,6 +11,7 @@ import { defineCollection } from '@nocobase/database';
 // plugins/whatsapp/src/collections/chats.ts
 export default defineCollection({
   name: 'chats',
+  title: '{{t("Chats")}}',
   createdBy: true,
   updatedBy: true,
   fields: [
@@ -25,6 +26,12 @@ export default defineCollection({
       name: 'sessionId',
       length: 128,
       index: true,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("sessionId")}}',
+        'x-component': 'Input',
+      },
     },
     {
       type: 'boolean',
