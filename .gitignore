@@ -44,3 +44,4 @@ yarn--**
 v8-compile-cache-**
 vitest.config.mts.timestamp-*
 /sessions*
+/wwebjs_auth*
