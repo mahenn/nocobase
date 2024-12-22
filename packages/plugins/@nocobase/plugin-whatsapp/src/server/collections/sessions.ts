@@ -11,6 +11,7 @@ import { defineCollection } from '@nocobase/database';
 // src/server/collections/sessions.ts
 export default defineCollection({
   name: 'sessions',
+  title: '{{t("Sessions")}}',
   createdBy: true,
   updatedBy: true,
   shared: true,

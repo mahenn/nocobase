@@ -11,6 +11,7 @@ import { defineCollection } from '@nocobase/database';
 // plugins/whatsapp/src/collections/contacts.ts
 export default defineCollection({
   name: 'contacts',
+  title: '{{t("Contacts")}}',
   createdBy: true,
   updatedBy: true,
   shared: true,

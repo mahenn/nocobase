@@ -24,17 +24,8 @@ export function getWhatsAppSchema({ dataSource = 'main', collection }) {
 
   return {
     type: 'void',
-    // 'x-decorator': 'DataBlockProvider',
-    // 'x-toolbar': 'BlockSchemaToolbar',
-    // 'x-decorator-props': {
-    //   dataSource,
-    //   collection,
-    //   action: 'list',
-    // },
-    
-    'x-component': 'CardItem',
+    'x-settings': 'blockSettings:table',
     'x-toolbar': 'BlockSchemaToolbar',
-    'x-initializer': 'table:configureItemActions', 
     'x-settings': 'blockSettings:table',    
     'x-component': 'CardItem',
     'x-decorator': 'TableBlockProvider',
@@ -44,46 +35,44 @@ export function getWhatsAppSchema({ dataSource = 'main', collection }) {
       showIndex: true,
       dragSort: false,
     },
-
     properties: {
-      // whatsapp: {
-      //   type: 'void',
-      //   'x-component': "PluginWhatsappSession",
-      //   'x-use-component-props': 'useWhatsAppProps',
-      //   'x-initializer': 'table:configureActions',
-      // }
-
-      table: {
-      type: 'array',
-      'x-component': 'TableV2',
-      'x-use-component-props': 'useTableBlockProps',
-      'x-initializer': 'table:configureColumns',
-      'x-designer': 'TableV2.ActionColumnDesigner', 
-      'x-component-props': {
-        rowKey: 'id',
-        rowSelection: {
-          type: 'checkbox',
+      actions: 
+      {
+        type: 'void',
+        version: '2.0',
+        'x-component': 'ActionBar',
+        'x-initializer': 'table:configureActions',
+        'x-component-props': {
+          style: {
+            marginBottom: 'var(--nb-spacing)',
+          },
         },
-        //useDataSource: '{{ cm.useDataSourceFromRAC }}',
-       // 'x-initializer': 'table:configureItemActions',                                                                 
-      
       },
-      properties: {
-        
-        actions: {
-                type: 'void',
-                title: '{{ t("Actions") }}',
-                'x-action-column': 'actions',
-                'x-decorator': 'TableV2.Column.ActionBar',
-                'x-component': 'TableV2.Column',
-                'x-designer': 'TableV2.ActionColumnDesigner',
-                'x-component-props': {
-                 // width: 400,
-                },
-      },  
-      }
-
-      
+      table: 
+      {
+        type: 'array',
+        'x-component': 'TableV2',
+        'x-use-component-props': 'useTableBlockProps',
+        'x-initializer': 'table:configureColumns',
+        'x-designer': 'TableV2.ActionColumnDesigner',                                                                  
+        'x-component-props': {
+          rowKey: 'id',
+          rowSelection: {
+            type: 'checkbox',
+          },
+        },
+        properties: {
+        actions: 
+        {
+          type: 'void',
+          title: '{{ t("Actions") }}',
+          'x-action-column': 'actions',
+          'x-decorator': 'TableV2.Column.ActionBar',
+          'x-component': 'TableV2.Column',
+          'x-designer': 'TableV2.ActionColumnDesigner',
+          'x-initializer': 'table:configureItemActions',
+        },  
+      } 
     },
     }
   }

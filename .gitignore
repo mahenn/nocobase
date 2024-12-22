@@ -42,6 +42,7 @@ tsconfig.paths.json
 ncc-cache/
 yarn--**
 v8-compile-cache-**
+/wwebjs_auth**
+**session-phone-123/*
 vitest.config.mts.timestamp-*
-/sessions*
-/wwebjs_auth*
+sessions*
