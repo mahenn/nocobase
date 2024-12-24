@@ -124,8 +124,10 @@ export class WhatsAppService {
       console.log("found existing seession",sessionId);
       //return this.sessions.get(sessionId);
     }
+    try {
+    //const { state, saveCreds } = await useMultiFileAuthState(`./sessions/${sessionId}`);
+    const { state, saveCreds } = await useSession(sessionId, this.app);
 
-    const { state, saveCreds } = await useMultiFileAuthState(`./sessions/${sessionId}`);
 
     const { version, isLatest } = await fetchLatestBaileysVersion();
     console.log(`Using WhatsApp version: ${version.join('.')}, is latest: ${isLatest}`);
@@ -137,10 +139,11 @@ export class WhatsAppService {
       //browser: [process.env.BOT_NAME || "NocoBase Bot", "Chrome", "3.0"],
       //version: [2, 3000, 1015901307],
       ...socketConfig,
-      auth: {
-        creds: state?.creds || {},
-        //keys: makeCacheableSignalKeyStore(state?.keys || {}, logger),
-      },
+      auth: state,
+      // auth: {
+      //   creds: state?.creds || {},
+      //   //keys: makeCacheableSignalKeyStore(state?.keys || {}, logger),
+      // },
       logger,
       shouldIgnoreJid: (jid) => isJidBroadcast(jid),
       // Add connection timeout
@@ -272,6 +275,11 @@ export class WhatsAppService {
     });
 
     return session;
+
+    } catch (error) {
+    logger.error('Error creating session:', error);
+    throw error;
+    }
   }
 
   async deleteSession(sessionId: string) {

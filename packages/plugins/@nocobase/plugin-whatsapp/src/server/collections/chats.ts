@@ -36,6 +36,12 @@ export default defineCollection({
     {
       type: 'boolean',
       name: 'archived',
+      interface: 'checkbox', // Added interface
+      uiSchema: {
+        type: 'boolean',
+        title: '{{t("Archived")}}',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'json',
@@ -54,6 +60,12 @@ export default defineCollection({
       type: 'string',
       name: 'description',
       length: 500,
+      interface: 'textarea', // Added interface
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Description")}}',
+        'x-component': 'Input.TextArea',
+      },
     },
     {
       type: 'json',
@@ -63,10 +75,21 @@ export default defineCollection({
       type: 'string',
       name: 'displayName',
       length: 128,
+      interface: 'input', // Added interface
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Display Name")}}',
+        'x-component': 'Input',
+      },
     },
     {
       type: 'boolean',
       name: 'endOfHistoryTransfer',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'integer',
@@ -84,14 +107,31 @@ export default defineCollection({
       type: 'string',
       name: 'id',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'boolean',
       name: 'isDefaultSubgroup',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'boolean',
       name: 'isParentGroup',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'bigInt',
@@ -101,10 +141,22 @@ export default defineCollection({
       type: 'string',
       name: 'lidJid',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'boolean',
       name: 'markedAsUnread',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'integer',
@@ -122,30 +174,70 @@ export default defineCollection({
       type: 'string',
       name: 'name',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'string',
       name: 'newJid',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'boolean',
       name: 'notSpam',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'string',
       name: 'oldJid',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'string',
       name: 'pHash',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'string',
       name: 'parentGroupId',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'json',
@@ -159,26 +251,58 @@ export default defineCollection({
       type: 'string',
       name: 'pnJid',
       length: 128,
+      interface: 'input',
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Chat ID")}}',
+        'x-component': 'Input',
+        'x-read-pretty': true,
+      },
     },
     {
       type: 'boolean',
       name: 'pnhDuplicateLidThread',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'boolean',
       name: 'readOnly',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'boolean',
       name: 'shareOwnPn',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'boolean',
       name: 'support',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'boolean',
       name: 'suspended',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'json',
@@ -195,14 +319,31 @@ export default defineCollection({
     {
       type: 'boolean',
       name: 'terminated',
+      interface: 'checkbox',
+      uiSchema: {
+        title: 'Browser Status',
+        'x-component': 'Checkbox',
+      },
     },
     {
       type: 'integer',
       name: 'unreadCount',
+      interface: 'integer', // Added interface
+      uiSchema: {
+        type: 'number',
+        title: '{{t("Unread Count")}}',
+        'x-component': 'InputNumber',
+      },
     },
     {
       type: 'integer',
       name: 'unreadMentionCount',
+      interface: 'integer',
+      uiSchema: {
+          type: 'number',
+          title: '{{t("Unread Count")}}',
+          'x-component': 'InputNumber',
+      },
     },
     {
       type: 'json',
@@ -211,10 +352,26 @@ export default defineCollection({
     {
       type: 'integer',
       name: 'lastMessageRecvTimestamp',
+      interface: 'datetime', // Added interface
+      uiSchema: {
+        type: 'string',
+        title: '{{t("Last Message Time")}}',
+        'x-component': 'DatePicker',
+        'x-component-props': {
+          showTime: true,
+        },
+      },
     },
     {
       type: 'integer',
       name: 'commentsCount',
+      interface: 'integer',
+      uiSchema: {
+          type: 'number',
+          title: '{{t("Unread Count")}}',
+          'x-component': 'InputNumber',
+      },
+
     },
     {
       type: 'hasMany',

@@ -7,11 +7,15 @@ import { useT } from '../locale';
 
 const ALLOWED_COLLECTIONS = ['chats', 'contacts', 'messages'];
 
+
 export const whatsappInitializerItem: SchemaInitializerItemType = {
+
+
+         
   name: 'whatsapp',
   Component: 'DataBlockInitializer',
   useComponentProps() {
-    
+
     const { insert } = useSchemaInitializer();
     const t = useT();
 
@@ -20,12 +24,54 @@ export const whatsappInitializerItem: SchemaInitializerItemType = {
       icon: <MessageOutlined />,
       componentType: 'Whatsapp',
       useTranslationHooks: useT,
-      filterCollections: (collections) => {
-        console.log(collections);
-        return collections.filter(collection => 
-          ALLOWED_COLLECTIONS.includes(collection.name)
-        );
-      },
+      // Add items property to specify which collections to show
+      items: [
+        {
+          type: 'itemGroup',
+          title: t('Whatsapp Collections'),
+          children: [
+            {
+              type: 'item',
+              title: t('Chats'),
+              name: 'chats',
+              collection: 'chats',
+              dataSource: 'main',
+              onCreateBlockSchema({ item }) {
+                return insert(getWhatsAppSchema({
+                  collection: item.collection,
+                  dataSource: item.dataSource
+                }));
+              }
+            },
+            {
+              type: 'item',
+              title: t('Messages'),
+              name: 'messages',
+              collection: 'messages',
+              dataSource: 'main',
+              onCreateBlockSchema({ item }) {
+                return insert(getWhatsAppSchema({
+                  collection: item.collection,
+                  dataSource: item.dataSource
+                }));
+              }
+            },
+            {
+              type: 'item',
+              title: t('Contacts'),
+              name: 'contacts',
+              collection: 'contacts',
+              dataSource: 'main',
+              onCreateBlockSchema({ item }) {
+                return insert(getWhatsAppSchema({
+                  collection: item.collection,
+                  dataSource: item.dataSource
+                }));
+              }
+            }
+          ]
+        }
+      ],
       onCreateBlockSchema({ item }) {
         insert(getWhatsAppSchema({ 
           dataSource: item.dataSource, 
@@ -35,39 +81,3 @@ export const whatsappInitializerItem: SchemaInitializerItemType = {
     };
   },
 };
-
-
-
-
-
-// import { TableOutlined } from '@ant-design/icons';
-// import React, { FC } from 'react';
-
-// import { SchemaInitializerItem, useSchemaInitializer, useSchemaInitializerItem } from '@nocobase/client';
-
-// export const whatsappInitializerItem: FC<any> = () => {
-//   const itemConfig = useSchemaInitializerItem();
-//   const { insert } = useSchemaInitializer();
-//   return (
-//     <SchemaInitializerItem
-//       icon={<TableOutlined />}
-//       {...itemConfig}
-//       onClick={() => {
-//         insert({
-//           type: 'void',
-//           //'x-decorator': 'WorkflowTodo.Decorator',
-//           'x-decorator-props': {},
-//           'x-component': 'CardItem',
-//           'x-toolbar': 'BlockSchemaToolbar',
-//           'x-settings': 'blockSettings:table',
-//           properties: {
-//             todos: {
-//               type: 'void',
-//               'x-component': 'PluginWhatsappSession',
-//             },
-//           },
-//         });
-//       }}
-//     />
-//   );
-// };

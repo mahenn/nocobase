@@ -12,7 +12,7 @@ import { tval } from '@nocobase/utils/client';
 import  {PluginWhatsappSession}  from './SessionsManagement';
 import  {WhatsAppBlockInitializer}  from './WhatsAppBlockInitializer';
 
-import { Whatsapp } from './component';
+import { Whatsapp ,WhatsAppChat} from './component';
 import { whatsappInitializerItem   } from './initializers';
 import { useWhatsAppProps } from './schemas';
 //import { whatsappSettings } from './settings';
@@ -26,9 +26,10 @@ export class PluginWhatsappClient extends Plugin {
 
   async load() {
 
-    this.app.addComponents({ PluginWhatsappSession });
+    //this.app.addComponents({ PluginWhatsappSession });
     this.app.addComponents({ WhatsAppBlockInitializer });
-    this.app.addScopes({ useWhatsAppProps });
+    this.app.addComponents({ WhatsAppChat });
+    //this.app.addScopes({ useWhatsAppProps });
 
 
     // const blockInitializers = this.app.schemaInitializerManager.get('page:addBlock');
@@ -45,11 +46,11 @@ export class PluginWhatsappClient extends Plugin {
     
     //this.app.schemaSettingsManager.add(whatsappSettings);
     
-    // this.app.pluginSettingsManager.add('whatsapp-session', {
-    //   title: tval('Whatsapp Bro', { ns: 'Whatsapp Session' }),
-    //   icon: 'ClusterOutlined',
-    //   Component: PluginWhatsappSession,
-    // })
+    this.app.pluginSettingsManager.add('whatsapp-session', {
+      title: tval('Whatsapp Bro', { ns: 'Whatsapp Session' }),
+      icon: 'ClusterOutlined',
+      Component: PluginWhatsappSession,
+    })
     
 
   }
