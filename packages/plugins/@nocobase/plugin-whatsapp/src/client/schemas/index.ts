@@ -23,65 +23,25 @@ export function useWhatsAppProps(): WhatsAppProps {
 
 export function getWhatsAppSchema({ dataSource = 'main', collection }) {
 
-
-  if (collection === 'messages') {
-    return {
-      type: 'void',
-      'x-settings': 'blockSettings:table',
-      'x-toolbar': 'BlockSchemaToolbar',
-      'x-component': 'CardItem',
-      'x-decorator': 'TableBlockProvider',
-      'x-decorator-props': {
-        collection,
-        action: 'list',
-        params: {
-          pageSize: 20,
-        }
-      },
-      properties: {
-        actions: {
-          type: 'void',
-          version: '2.0',
-          'x-component': 'ActionBar',
-          'x-initializer': 'table:configureActions',
-          'x-component-props': {
-            style: {
-              marginBottom: 'var(--nb-spacing)',
-            },
-          },
-        },
-        chat: {
-          type: 'void',
-          'x-component': 'WhatsAppChat',
-          'x-use-component-props': 'useWhatsAppProps',
-          'x-component-props': {
-            style: {
-              height: 'calc(100vh - 200px)',
-              margin: '-24px',
-            }
-          },
-        }
-      }
-    };
-  }
-
-
   return {
     type: 'void',
     'x-settings': 'blockSettings:table',
     'x-toolbar': 'BlockSchemaToolbar',
-    'x-settings': 'blockSettings:table',    
     'x-component': 'CardItem',
+    'x-filter-targets': [],
     'x-decorator': 'TableBlockProvider',
     'x-decorator-props': {
       collection,
+      dataSource,
       action: 'list',
       showIndex: true,
       dragSort: false,
+      params: {
+          filter: {},
+          sort: [], // Add sort parameter
+        },
     },
-
     properties: {
-
       actions: 
       {
         type: 'void',
@@ -106,6 +66,7 @@ export function getWhatsAppSchema({ dataSource = 'main', collection }) {
           rowSelection: {
             type: 'checkbox',
           },
+          useProps: '{{ useTableBlockProps }}',
         },
         properties: {
         actions: 
@@ -116,6 +77,7 @@ export function getWhatsAppSchema({ dataSource = 'main', collection }) {
           'x-decorator': 'TableV2.Column.ActionBar',
           'x-component': 'TableV2.Column',
           'x-toolbar': 'TableColumnSchemaToolbar',
+          
           'x-designer': 'TableV2.ActionColumnDesigner',
           'x-initializer': 'table:configureItemActions',
           'x-action-column': 'actions',

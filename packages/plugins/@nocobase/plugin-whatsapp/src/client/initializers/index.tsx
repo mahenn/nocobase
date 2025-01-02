@@ -47,7 +47,7 @@ export const whatsappInitializerItem: SchemaInitializerItemType = {
               type: 'item',
               title: t('Messages'),
               name: 'messages',
-              collection: 'messages',
+              collection: 'chats',
               dataSource: 'main',
               onCreateBlockSchema({ item }) {
                 return insert(getWhatsAppSchema({
@@ -61,6 +61,19 @@ export const whatsappInitializerItem: SchemaInitializerItemType = {
               title: t('Contacts'),
               name: 'contacts',
               collection: 'contacts',
+              dataSource: 'main',
+              onCreateBlockSchema({ item }) {
+                return insert(getWhatsAppSchema({
+                  collection: item.collection,
+                  dataSource: item.dataSource
+                }));
+              }
+            },
+            {
+              type: 'item',
+              title: t('Sessions'),
+              name: 'sessions',
+              collection: 'sessions',
               dataSource: 'main',
               onCreateBlockSchema({ item }) {
                 return insert(getWhatsAppSchema({

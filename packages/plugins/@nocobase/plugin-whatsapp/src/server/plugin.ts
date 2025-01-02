@@ -39,10 +39,19 @@ export class PluginWhatsappServer extends Plugin {
       directory: path.resolve(__dirname, 'collections'),
     });
 
+    const repo = this.db.getRepository<any>('collections');
+    console.log("beforeLoad repo -----------------------------------------------------------------------------",repo);
+    
+    if (repo) {
+      await repo.db2cm('chats');
+      await repo.db2cm('messages');
+      await repo.db2cm('sessions');
+      await repo.db2cm('contacts');
+    }
+
   }
 
   async load() {
-
 
     this.whatsappService = new WhatsAppService(this.app);
     
@@ -180,13 +189,15 @@ export class PluginWhatsappServer extends Plugin {
 
     // Register collections in collections table
     const repo = this.db.getRepository<any>('collections');
-    
+    console.log("install repo -----------------------------------------------------------------------------",repo);
     if (repo) {
       await repo.db2cm('chats');
       await repo.db2cm('messages');
       await repo.db2cm('sessions');
       await repo.db2cm('contacts');
     }
+
+    await this.db.sync();
 
   }
 
